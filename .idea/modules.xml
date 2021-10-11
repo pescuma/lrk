@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/gui_flutter/lrk_gui_flutter.iml" filepath="$PROJECT_DIR$/gui_flutter/lrk_gui_flutter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gui_flutter/android/lrk_gui_flutter_android.iml" filepath="$PROJECT_DIR$/android/lrk_gui_flutter_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/health_water/lrk_health_water.iml" filepath="$PROJECT_DIR$/health_water/lrk_health_water.iml" />
+    </modules>
+  </component>
+</project>
