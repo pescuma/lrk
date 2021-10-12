@@ -1,13 +1,16 @@
 name: lrk_health_water
-description: A starting point for Dart libraries or applications.
-version: 1.0.0
-# homepage: https://www.example.com
+description: Water consumption application for LRK
+version: 0.0.1
+homepage: https://github.com/pescuma/lrk
 
 environment:
   sdk: '>=2.14.3 <3.0.0'
 
-
-# dependencies:
+dependencies:
+  dart_date: ^1.1.0
+  clock: ^1.1.0
+  darq: ^1.1.1
+#  time_machine: ^0.9.16
 #   path: ^1.8.0
 
 dev_dependencies:
