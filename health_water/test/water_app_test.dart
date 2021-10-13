@@ -7,7 +7,10 @@ void main() {
   void Function() prepare(void Function(WaterApp, FakeTime) body) {
     return fake((time) {
       var app = WaterApp(MemoryWaterDB(), time.clock);
+
       body(app, time);
+
+      time.await(app.close());
     });
   }
 
@@ -82,17 +85,32 @@ void main() {
         ]));
   }));
 
-  // cron does not allow faking time
-  // test('Update current day', app((app, time) {
-  //   time.now = DateTime(2000, 1, 1);
-  //
-  //   var day1 = time.await(app.getDay());
-  //
-  //   time.elapse(Duration(days: 10, minutes: 1));
-  //
-  //   var day2 = time.await(app.getDay());
-  //
-  //   expect(day1, equals(DateTime(2000, 1, 1)));
-  //   expect(day2, equals(DateTime(2000, 1, 2)));
-  // }));
+  test('Update current day', prepare((app, time) {
+    time.now = DateTime(2000, 1, 1);
+
+    var day1 = time.await(app.getDay());
+
+    time.elapse(Duration(days: 1));
+
+    var day2 = time.await(app.getDay());
+
+    expect(day1, equals(DateTime(2000, 1, 1)));
+    expect(day2, equals(DateTime(2000, 1, 2)));
+  }));
+
+  test('Update day only if current', prepare((app, time) {
+    time.now = DateTime(2001, 1, 1);
+    var past = DateTime(2000, 1, 1);
+
+    // Init timers for today
+    time.await(app.getDay());
+
+    time.await(app.setDay(past));
+
+    time.elapse(Duration(days: 10));
+
+    var day2 = time.await(app.getDay());
+
+    expect(day2, equals(past));
+  }));
 }

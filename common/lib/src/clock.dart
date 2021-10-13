@@ -1,18 +1,18 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart' as pkg_clock;
 import 'package:cron/cron.dart' as pkg_cron;
-import 'dart:async';
+import 'package:dart_date/dart_date.dart';
 
 class Clock {
   final pkg_clock.Clock _clock = pkg_clock.clock;
-  final pkg_cron.Cron _cron = pkg_cron.Cron();
 
   DateTime now() => _clock.now();
 
   Stopwatch stopwatch() => _clock.stopwatch();
 
   ScheduledTask scheduleCron(String cron, void Function() callback) {
-    var task = _cron.schedule(pkg_cron.Schedule.parse(cron), callback);
-    return _CronScheduledTask(task);
+    return _CronScheduledTask(_clock, cron, callback);
   }
 
   ScheduledTask scheduleIn(Duration duration, void Function() callback) {
@@ -27,17 +27,61 @@ class Clock {
 }
 
 abstract class ScheduledTask {
-  Future<void> cancel();
+  void cancel();
 }
 
 class _CronScheduledTask implements ScheduledTask {
-  final pkg_cron.ScheduledTask _task;
+  final pkg_clock.Clock _clock;
+  final pkg_cron.Schedule _schedule;
+  final void Function() _callback;
+  Timer? _nextTimer;
 
-  _CronScheduledTask(this._task);
+  _CronScheduledTask(this._clock, String cron, this._callback)
+      : _schedule = pkg_cron.Schedule.parse(cron) {
+    _scheduleNext();
+  }
+
+  void _scheduleNext() {
+    assert(_nextTimer == null);
+
+    var nextTime = _findNextTime(_clock.now());
+
+    _nextTimer = Timer(nextTime.difference(_clock.now()), _execute);
+  }
+
+  DateTime _findNextTime(DateTime time) {
+    time = time.startOfMinute.addMinutes(1);
+
+    while (!_runAt(time)) {
+      time = time.addMinutes(1);
+    }
+
+    return time;
+  }
+
+  bool _runAt(DateTime time) {
+    if (_schedule.seconds?.contains(time.second) == false) return false;
+    if (_schedule.minutes?.contains(time.minute) == false) return false;
+    if (_schedule.hours?.contains(time.hour) == false) return false;
+    if (_schedule.days?.contains(time.day) == false) return false;
+    if (_schedule.months?.contains(time.month) == false) return false;
+    return true;
+  }
+
+  void _execute() {
+    _nextTimer = null;
+
+    try {
+      _callback();
+    } finally {
+      _scheduleNext();
+    }
+  }
 
   @override
-  Future<void> cancel() async {
-    await _task.cancel();
+  void cancel() async {
+    _nextTimer?.cancel();
+    _nextTimer = null;
   }
 }
 
@@ -47,7 +91,7 @@ class _TimerScheduledTask implements ScheduledTask {
   _TimerScheduledTask(this._timer);
 
   @override
-  Future<void> cancel() async {
+  void cancel() async {
     _timer.cancel();
   }
 }

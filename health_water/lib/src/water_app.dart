@@ -14,6 +14,10 @@ class WaterApp {
 
   WaterApp(this._db, this._clock);
 
+  Future<void> close() async {
+    _dayChangeTask?.cancel();
+  }
+
   Future<WaterConfig> getConfig() async {
     _config ??= await _db.getConfig();
     return _config!;
