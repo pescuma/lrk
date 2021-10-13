@@ -19,6 +19,7 @@ dependencies:
 dev_dependencies:
   lints: ^1.0.0
   test: ^1.16.0
+  fake_async: ^1.2.0
 
   lrk_common_testing:
     path: ../common_testing

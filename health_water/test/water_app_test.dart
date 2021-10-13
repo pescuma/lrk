@@ -4,80 +4,95 @@ import 'package:lrk_health_water/water.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test_app('Empty', (app, time) async {
-    expect(await app.getTotal(), equals(0));
-    expect(await app.getGlasses(), isEmpty);
-  });
+  void Function() prepare(void Function(WaterApp, FakeTime) body) {
+    return fake((time) {
+      var app = WaterApp(MemoryWaterDB(), time.clock);
+      body(app, time);
+    });
+  }
 
-  test_app('Today', (app, time) async {
-    expect(await app.getDay(), equals(time.clock.now().startOfDay));
-  });
+  test('Empty', prepare((app, time) {
+    expect(time.await(app.getTotal()), equals(0));
+    expect(time.await(app.getGlasses()), isEmpty);
+  }));
 
-  test_app('Respect start of day - before', (app, time) async {
+  test('Today', prepare((app, time) {
+    time.now = DateTime(2000, 1, 2, 3, 4, 5);
+
+    expect(time.await(app.getDay()), equals(time.now.startOfDay));
+  }));
+
+  test('Respect start of day - before', prepare((app, time) {
     time.now = DateTime(2000, 1, 2, 2);
 
-    await app.setConfig(WaterConfig(startingHourOfTheDay: 3));
+    time.await(app.setConfig(WaterConfig(startingHourOfTheDay: 3)));
 
-    expect(await app.getDay(), equals(DateTime(2000, 1, 1)));
-  });
+    expect(time.await(app.getDay()), equals(DateTime(2000, 1, 1)));
+  }));
 
-  test_app('Respect start of day - same', (app, time) async {
+  test('Respect start of day - same', prepare((app, time) {
     time.now = DateTime(2000, 1, 2, 3);
 
-    await app.setConfig(WaterConfig(startingHourOfTheDay: 3));
+    time.await(app.setConfig(WaterConfig(startingHourOfTheDay: 3)));
 
-    expect(await app.getDay(), equals(DateTime(2000, 1, 2)));
-  });
+    expect(time.await(app.getDay()), equals(DateTime(2000, 1, 2)));
+  }));
 
-  test_app('Respect start of day - after', (app, time) async {
+  test('Respect start of day - after', prepare((app, time) {
     time.now = DateTime(2000, 1, 2, 4);
 
-    await app.setConfig(WaterConfig(startingHourOfTheDay: 3));
+    time.await(app.setConfig(WaterConfig(startingHourOfTheDay: 3)));
 
-    expect(await app.getDay(), equals(DateTime(2000, 1, 2)));
-  });
+    expect(time.await(app.getDay()), equals(DateTime(2000, 1, 2)));
+  }));
 
-  test_app('Not reached', (app, time) async {
-    await app.setConfig(WaterConfig(targetConsumption: 2000));
+  test('Not reached', prepare((app, time) {
+    time.await(app.setConfig(WaterConfig(targetConsumption: 2000)));
 
-    app.add(100);
-    app.add(200);
+    time.await(app.add(100));
+    time.await(app.add(200));
 
-    expect(await app.getTotal(), equals(300));
-    expect(await app.getTarget(), equals(2000));
-    expect(await app.reachedTarget(), equals(false));
-  });
+    expect(time.await(app.getTotal()), equals(300));
+    expect(time.await(app.getTarget()), equals(2000));
+    expect(time.await(app.reachedTarget()), equals(false));
+  }));
 
-  test_app('Reached', (app, time) async {
-    await app.setConfig(WaterConfig(targetConsumption: 2000));
+  test('Reached', prepare((app, time) {
+    time.await(app.setConfig(WaterConfig(targetConsumption: 2000)));
 
-    app.add(100);
-    app.add(1900);
+    time.await(app.add(100));
+    time.await(app.add(1900));
 
-    expect(await app.getTotal(), equals(2000));
-    expect(await app.getTarget(), equals(2000));
-    expect(await app.reachedTarget(), equals(true));
-  });
+    expect(time.await(app.getTotal()), equals(2000));
+    expect(time.await(app.getTarget()), equals(2000));
+    expect(time.await(app.reachedTarget()), equals(true));
+  }));
 
-  test_app('Glasses', (app, time) async {
-    await app.add(100);
-    await app.add(200, Glass.coffeeCup);
-    await app.add(300, Glass.mug);
+  test('Glasses', prepare((app, time) {
+    time.await(app.add(100));
+    time.await(app.add(200, Glass.coffeeCup));
+    time.await(app.add(300, Glass.mug));
 
     expect(
-        await app.getGlasses(),
+        time.await(app.getGlasses()),
         equals([
           WaterConsumption(time.now, 100, Glass.glass),
           WaterConsumption(time.now, 200, Glass.coffeeCup),
           WaterConsumption(time.now, 300, Glass.mug)
         ]));
-  });
-}
+  }));
 
-void test_app(description, dynamic Function(WaterApp, FakeTime) body) {
-  test_c(description, (time) {
-    var app = WaterApp(MemoryWaterDB(), time.clock);
-
-    body(app, time);
-  });
+  // cron does not allow faking time
+  // test('Update current day', app((app, time) {
+  //   time.now = DateTime(2000, 1, 1);
+  //
+  //   var day1 = time.await(app.getDay());
+  //
+  //   time.elapse(Duration(days: 10, minutes: 1));
+  //
+  //   var day2 = time.await(app.getDay());
+  //
+  //   expect(day1, equals(DateTime(2000, 1, 1)));
+  //   expect(day2, equals(DateTime(2000, 1, 2)));
+  // }));
 }

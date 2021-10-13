@@ -1,17 +1,14 @@
-import 'package:lrk_common/common.dart';
-import 'package:test/test.dart';
 import 'package:fake_async/fake_async.dart';
+import 'package:lrk_common/common.dart';
 
-void test_c(description, dynamic Function(FakeTime) body, {DateTime? time}) {
-  time ??= DateTime(0, 1, 1, 0, 0, 0, 0, 0);
-
-  test(description, () {
+void Function() fake(void Function(FakeTime) body) {
+  return () {
     fakeAsync((async) {
       var clock = FakeTime._(async);
 
       body(clock);
-    }, initialTime: time);
-  });
+    }, initialTime: DateTime(0, 1, 1, 0, 0, 0, 0, 0));
+  };
 }
 
 class FakeTime {
@@ -24,10 +21,26 @@ class FakeTime {
   DateTime get now => clock.now();
 
   set now(DateTime now) {
-    _async.elapse(now.difference(clock.now()));
+    elapse(now.difference(clock.now()));
   }
 
   void elapse(Duration duration) {
+    _async.flushMicrotasks();
+
     _async.elapse(duration);
+
+    _async.flushMicrotasks();
+  }
+
+  T await<T>(Future<T> x) {
+    late T result;
+
+    x.then((v) {
+      result = v;
+    });
+
+    _async.flushMicrotasks();
+
+    return result;
   }
 }
