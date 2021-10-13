@@ -43,6 +43,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0"
+  cron:
+    dependency: transitive
+    description:
+      name: cron
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.2"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -102,6 +109,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  lrk_common:
+    dependency: transitive
+    description:
+      path: "../common"
+      relative: true
+    source: path
+    version: "0.0.1"
   lrk_health_water:
     dependency: "direct main"
     description:

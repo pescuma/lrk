@@ -1,0 +1,18 @@
+name: lrk_common
+description: Life Records Keeper commons package
+version: 0.0.1
+homepage: https://github.com/pescuma/lrk
+
+environment:
+  sdk: '>=2.14.3 <3.0.0'
+
+
+dependencies:
+  clock: ^1.1.0
+  dart_date: ^1.1.0
+  cron: ^0.3.2
+  lazy_memo: ^0.1.2
+
+dev_dependencies:
+  lints: ^1.0.0
+  test: ^1.16.0

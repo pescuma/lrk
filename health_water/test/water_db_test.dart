@@ -1,4 +1,3 @@
-import 'package:lrk_health_water/src/water_model.dart';
 import 'package:lrk_health_water/water.dart';
 import 'package:test/test.dart';
 

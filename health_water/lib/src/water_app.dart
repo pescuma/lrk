@@ -1,27 +1,37 @@
-import 'package:clock/clock.dart';
 import 'package:dart_date/dart_date.dart';
 import 'package:lrk_health_water/src/water_db.dart';
 import 'package:lrk_health_water/src/water_model.dart';
+import 'package:lrk_common/common.dart';
 
 class WaterApp {
-  final WaterConfig _config;
   final WaterDB _db;
   final Clock _clock;
+  WaterConfig? _config;
   DateTime? _day;
   int? _total;
   List<WaterConsumption>? _glasses;
 
-  WaterApp(this._config, this._db, this._clock);
+  WaterApp(this._db, this._clock);
+
+  WaterConfig get config {
+    _config ??= _db.getConfig();
+    return _config!;
+  }
+
+  set config(WaterConfig config) {
+    _db.updateConfig(config);
+    _config = config;
+  }
 
   DateTime get day {
     if (_day == null) {
-      var d = _clock.now();
+      var now = _clock.now();
 
-      if (d.hour < _config.startingHourOfTheDay) {
-        d = d.addDays(-1, true);
+      if (now.hour < config.startingHourOfTheDay) {
+        now = now.addDays(-1, true);
       }
 
-      _day = d.startOfDay;
+      _day = now.startOfDay;
     }
 
     return _day!;
@@ -39,12 +49,11 @@ class WaterApp {
 
   int get total {
     _total ??= _db.getTotal(day);
-
     return _total!;
   }
 
   int get target {
-    return _config.targetConsumption;
+    return config.targetConsumption;
   }
 
   bool get reachedTarget {
@@ -53,7 +62,6 @@ class WaterApp {
 
   List<WaterConsumption> get glasses {
     _glasses ??= _db.listDetails(day);
-
     return _glasses!;
   }
 
@@ -76,13 +84,6 @@ class WaterApp {
 
     var totals = _db.listTotals(start, end);
 
-    return DayTotal.newRange(start, end, totals);
+    return DayTotal.createRange(start, end, totals);
   }
-}
-
-class WaterConfig {
-  int startingHourOfTheDay = 0;
-
-  /// ml
-  int targetConsumption = 2000;
 }

@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/common/lrk_common.iml" filepath="$PROJECT_DIR$/common/lrk_common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common_testing/lrk_common_testing.iml" filepath="$PROJECT_DIR$/common_testing/lrk_common_testing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gui_cli/lrk_gui_cli.iml" filepath="$PROJECT_DIR$/gui_cli/lrk_gui_cli.iml" />
       <module fileurl="file://$PROJECT_DIR$/gui_flutter/lrk_gui_flutter.iml" filepath="$PROJECT_DIR$/gui_flutter/lrk_gui_flutter.iml" />
       <module fileurl="file://$PROJECT_DIR$/gui_flutter/android/lrk_gui_flutter_android.iml" filepath="$PROJECT_DIR$/android/lrk_gui_flutter_android.iml" />
       <module fileurl="file://$PROJECT_DIR$/health_water/lrk_health_water.iml" filepath="$PROJECT_DIR$/health_water/lrk_health_water.iml" />
