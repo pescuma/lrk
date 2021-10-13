@@ -13,20 +13,21 @@ class WaterApp {
 
   WaterApp(this._db, this._clock);
 
-  WaterConfig get config {
-    _config ??= _db.getConfig();
+  Future<WaterConfig> getConfig() async {
+    _config ??= await _db.getConfig();
     return _config!;
   }
 
-  set config(WaterConfig config) {
-    _db.updateConfig(config);
+  Future<void> setConfig(WaterConfig config) async {
+    await _db.updateConfig(config);
     _config = config;
   }
 
-  DateTime get day {
+  Future<DateTime> getDay() async {
     if (_day == null) {
       var now = _clock.now();
 
+      var config = await getConfig();
       if (now.hour < config.startingHourOfTheDay) {
         now = now.addDays(-1, true);
       }
@@ -37,7 +38,7 @@ class WaterApp {
     return _day!;
   }
 
-  set day(DateTime date) {
+  Future<void> setDay(DateTime date) async {
     date = date.startOfDay;
 
     if (_day == date) return;
@@ -47,30 +48,31 @@ class WaterApp {
     _glasses = null;
   }
 
-  int get total {
-    _total ??= _db.getTotal(day);
+  Future<int> getTotal() async {
+    _total ??= await _db.getTotal(await getDay());
     return _total!;
   }
 
-  int get target {
+  Future<int> getTarget() async {
+    var config = await getConfig();
     return config.targetConsumption;
   }
 
-  bool get reachedTarget {
-    return total >= target;
+  Future<bool> reachedTarget() async {
+    return await getTotal() >= await getTarget();
   }
 
-  List<WaterConsumption> get glasses {
-    _glasses ??= _db.listDetails(day);
+  Future<List<WaterConsumption>> getGlasses() async {
+    _glasses ??= await _db.listDetails(await getDay());
     return _glasses!;
   }
 
-  void add(int quantity, [Glass glass = Glass.glass]) {
+  Future<void> add(int quantity, [Glass glass = Glass.glass]) async {
     var consumption = WaterConsumption(_clock.now(), quantity, glass);
 
-    assert(consumption.date.startOfDay == day);
+    assert(consumption.date.startOfDay == await getDay());
 
-    _db.add(consumption);
+    await _db.add(consumption);
 
     _glasses?.add(consumption);
     if (_total != null) _total = _total! + consumption.quantity;
@@ -78,11 +80,11 @@ class WaterApp {
 
   /// start: inclusive
   /// end: inclusive
-  List<DayTotal> listTotals(DateTime start, DateTime end) {
+  Future<List<DayTotal>> listTotals(DateTime start, DateTime end) async {
     start = start.startOfDay;
     end = end.startOfDay.addDays(1, true);
 
-    var totals = _db.listTotals(start, end);
+    var totals = await _db.listTotals(start, end);
 
     return DayTotal.createRange(start, end, totals);
   }

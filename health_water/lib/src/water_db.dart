@@ -1,54 +1,57 @@
 import 'package:darq/darq.dart';
 import 'package:dart_date/dart_date.dart';
-import 'package:lrk_health_water/src/water_app.dart';
 import 'package:lrk_health_water/src/water_model.dart';
 
 /// All quantities in ml
 abstract class WaterDB {
-  WaterConfig getConfig();
-  void updateConfig(WaterConfig config);
+  Future<WaterConfig> getConfig();
+  Future<void> updateConfig(WaterConfig config);
 
-  int getTotal(DateTime day);
+  Future<int> getTotal(DateTime day);
 
   /// start: inclusive
   /// end: exclusive
-  Map<DateTime, int> listTotals(DateTime start, DateTime end);
+  Future<Map<DateTime, int>> listTotals(DateTime start, DateTime end);
 
-  List<WaterConsumption> listDetails(DateTime day);
+  Future<List<WaterConsumption>> listDetails(DateTime day);
 
-  void add(WaterConsumption consumption);
+  Future<void> add(WaterConsumption consumption);
 }
 
-class MemoryWaterDb implements WaterDB {
+class MemoryWaterDB implements WaterDB {
   final _entries = <WaterConsumption>[];
   WaterConfig? _config;
 
   @override
-  WaterConfig getConfig() {
+  Future<WaterConfig> getConfig() async {
     _config ??= WaterConfig();
     return _config!;
   }
 
   @override
-  void updateConfig(WaterConfig config) {
+  Future<void> updateConfig(WaterConfig config) async {
     _config = config;
   }
 
   @override
-  void add(WaterConsumption consumption) {
+  Future<void> add(WaterConsumption consumption) async {
     _entries.add(consumption);
   }
 
   @override
-  int getTotal(DateTime day) =>
-      _entries.where((e) => e.date.isSameDay(day)).fold(0, (v, e) => v + e.quantity);
+  Future<int> getTotal(DateTime day) async {
+    int result = _entries
+        .where((e) => e.date.isSameDay(day)) //
+        .fold(0, (v, e) => v + e.quantity);
+    return result;
+  }
 
   @override
-  List<WaterConsumption> listDetails(DateTime day) =>
+  Future<List<WaterConsumption>> listDetails(DateTime day) async =>
       _entries.where((e) => e.date.isSameDay(day)).toList();
 
   @override
-  Map<DateTime, int> listTotals(DateTime start, DateTime end) {
+  Future<Map<DateTime, int>> listTotals(DateTime start, DateTime end) async {
     return _entries
         .where((e) => e.date >= start && e.date < end)
         .groupBy((e) => e.date.startOfDay)
