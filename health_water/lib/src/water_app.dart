@@ -1,4 +1,3 @@
-import 'package:dart_date/dart_date.dart';
 import 'package:lrk_common/common.dart';
 import 'package:lrk_health_water/src/water_db.dart';
 import 'package:lrk_health_water/src/water_model.dart';
@@ -12,10 +11,14 @@ class WaterApp {
   ScheduledTask? _dayChangeTask;
   List<WaterConsumption>? _glasses;
 
+  EventEmitter events = EventEmitter();
+
   WaterApp(this._db, this._clock);
 
   Future<void> close() async {
     _dayChangeTask?.cancel();
+
+    events.emit('close');
   }
 
   Future<WaterConfig> getConfig() async {
@@ -24,6 +27,10 @@ class WaterApp {
   }
 
   Future<void> setConfig(WaterConfig config) async {
+    if (await getConfig() == config) {
+      return;
+    }
+
     _stopDayChangeTask();
 
     await _db.updateConfig(config);
@@ -33,6 +40,8 @@ class WaterApp {
     if (_day != null && _day == _getCurrentDay(config)) {
       _startDayChangeTask(_config!);
     }
+
+    events.emit('change', 'config');
   }
 
   void _stopDayChangeTask() {
@@ -90,6 +99,8 @@ class WaterApp {
         _stopDayChangeTask();
       }
     }
+
+    events.emit('change', 'day');
   }
 
   Future<int> getTotal() async {
@@ -112,6 +123,8 @@ class WaterApp {
   }
 
   Future<void> add(int quantity, [Glass glass = Glass.glass]) async {
+    assert(quantity > 0);
+
     var consumption = WaterConsumption(_clock.now(), quantity, glass);
 
     assert(consumption.date.startOfDay == await getDay());
@@ -120,6 +133,8 @@ class WaterApp {
 
     _glasses?.add(consumption);
     if (_total != null) _total = _total! + consumption.quantity;
+
+    events.emit('change', 'glasses');
   }
 
   /// start: inclusive

@@ -113,4 +113,64 @@ void main() {
 
     expect(day2, equals(past));
   }));
+
+  test('Change on setDate', prepare((app, time) {
+    var changes = 0;
+    app.events.on('change', () => changes++);
+
+    time.await(app.setDay(DateTime(2000, 1, 2)));
+
+    expect(changes, equals(1));
+  }));
+
+  test('No change on lazy init', prepare((app, time) {
+    var changes = 0;
+    app.events.on('change', () => changes++);
+
+    time.await(app.getDay());
+
+    expect(changes, equals(0));
+  }));
+
+  test('Change on new day', prepare((app, time) {
+    var changes = 0;
+    app.events.on('change', () => changes++);
+
+    time.await(app.getDay());
+
+    time.elapse(Duration(days: 1));
+
+    expect(changes, equals(1));
+  }));
+
+  test('Change on add', prepare((app, time) {
+    var changes = 0;
+    app.events.on('change', () => changes++);
+
+    time.await(app.add(200));
+
+    expect(changes, equals(1));
+  }));
+
+  test('Change on config', prepare((app, time) {
+    var changes = 0;
+    app.events.on('change', () => changes++);
+
+    time.await(app.setConfig(WaterConfig(startingHourOfTheDay: 12)));
+
+    expect(changes, equals(1));
+  }));
+
+  test('No change on same config', prepare((app, time) {
+    var changes = 0;
+    app.events.on('change', () => changes++);
+
+    var config = time.await(app.getConfig());
+
+    time.await(app.setConfig(WaterConfig(
+        startingHourOfTheDay: config.startingHourOfTheDay,
+        targetConsumption: config.targetConsumption)));
+
+    expect(changes, equals(0));
+  }));
 }

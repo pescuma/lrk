@@ -7,7 +7,6 @@ environment:
   sdk: '>=2.14.3 <3.0.0'
 
 dependencies:
-  dart_date: ^1.1.0
   fake_async: ^1.2.0
 
   lrk_common:
