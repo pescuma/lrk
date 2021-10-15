@@ -1,3 +1,5 @@
+import 'package:quiver/collection.dart';
+
 class WaterConfig {
   final int startingHourOfTheDay;
 
@@ -51,4 +53,15 @@ class WaterConsumption {
   int get hashCode => date.hashCode ^ quantity.hashCode ^ glass.hashCode;
 }
 
-enum Glass { coffeeCup, glass, cocktailGlass, wineGlass, flute, mug, sodaBottle, wineBottle, tonic }
+enum Glass { glass, coffeeCup, cocktailGlass, wineGlass, flute, mug, sodaBottle, wineBottle, tonic }
+
+var glassNames = BiMap<Glass, String>()
+  ..putIfAbsent(Glass.glass, () => 'glass')
+  ..putIfAbsent(Glass.coffeeCup, () => 'coffee cup')
+  ..putIfAbsent(Glass.mug, () => 'mug')
+  ..putIfAbsent(Glass.wineGlass, () => 'wine glass')
+  ..putIfAbsent(Glass.cocktailGlass, () => 'cocktail glass')
+  ..putIfAbsent(Glass.flute, () => 'flute')
+  ..putIfAbsent(Glass.sodaBottle, () => 'soda bottle')
+  ..putIfAbsent(Glass.wineBottle, () => 'wine bottle')
+  ..putIfAbsent(Glass.tonic, () => 'tonic');
