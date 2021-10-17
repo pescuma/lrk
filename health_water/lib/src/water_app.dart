@@ -129,7 +129,7 @@ class WaterApp {
 
     assert(consumption.date.startOfDay == await getDay());
 
-    await _db.add(consumption);
+    consumption = await _db.add(consumption);
 
     _glasses?.add(consumption);
     if (_total != null) _total = _total! + consumption.quantity;

@@ -14,7 +14,7 @@ abstract class WaterDB {
 
   Future<List<WaterConsumption>> listDetails(DateTime day);
 
-  Future<void> add(WaterConsumption consumption);
+  Future<WaterConsumption> add(WaterConsumption consumption);
 }
 
 class MemoryWaterDB implements WaterDB {
@@ -33,8 +33,10 @@ class MemoryWaterDB implements WaterDB {
   }
 
   @override
-  Future<void> add(WaterConsumption consumption) async {
+  Future<WaterConsumption> add(WaterConsumption consumption) async {
     _entries.add(consumption);
+
+    return consumption;
   }
 
   @override
