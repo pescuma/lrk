@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:lrk_common/common.dart';
 import 'package:lrk_gui_cli/globals.dart';
 import 'package:lrk_health_water/water.dart';
+import 'package:tabular/tabular.dart';
 
 import 'globals.dart';
 
@@ -64,7 +65,10 @@ class HealthWaterHistoryCommand extends Command {
     var clock = di.get<Clock>();
     var app = di.get<WaterApp>();
 
-    var end = clock.now().startOfDay;
+    var today = clock.now().startOfDay;
+    var yesterday = today.addDays(-1, true);
+
+    var end = today;
     var start = end.addDays(-14, true);
 
     var totals = await app.listTotals(start, end);
@@ -73,14 +77,25 @@ class HealthWaterHistoryCommand extends Command {
     final dfmt = DateFormat().add_yMd();
     final ifmt = NumberFormat("#,###");
 
-    print("Water consumption history");
+    var table = <List<String>>[];
+    table.add(['Date', 'Total']);
+
     for (var total in totals) {
-      if (total.day == end) {
-        print("Today: ${ifmt.format(total.total)} ml");
+      String day;
+      if (total.day == today) {
+        day = 'Today';
+      } else if (total.day == yesterday) {
+        day = 'Yesterday';
       } else {
-        print("${dfmt.format(total.day)}: ${ifmt.format(total.total)} ml");
+        day = dfmt.format(total.day);
       }
+
+      table.add([day, '${ifmt.format(total.total)} ml']);
     }
+
+    print('Water consumption history');
+    print('');
+    print(tabular(table, align: {'Total': Side.end}));
   }
 }
 
@@ -147,7 +162,7 @@ Arguments:
 
     try {
       result = ifmt.parse(x);
-    } on FormatException catch (e) {
+    } on FormatException {
       throw ValidationError('Should be a integral number greater than 0');
     }
 
