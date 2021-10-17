@@ -56,8 +56,6 @@ class WaterSqliteDB extends _$WaterSqliteDB implements model.WaterDB {
   /// end: exclusive
   @override
   Future<Map<DateTime, int>> listTotals(DateTime start, DateTime end) async {
-    end = end.addDays(-1, true);
-
     var totals =
         await (select(waterTotals)..where((t) => t.date.isBetweenValues(start, end))).get();
 

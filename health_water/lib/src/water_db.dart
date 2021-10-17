@@ -9,7 +9,7 @@ abstract class WaterDB {
   Future<int> getTotal(DateTime day);
 
   /// start: inclusive
-  /// end: exclusive
+  /// end: inclusive
   Future<Map<DateTime, int>> listTotals(DateTime start, DateTime end);
 
   Future<List<WaterConsumption>> listDetails(DateTime day);
@@ -54,7 +54,7 @@ class MemoryWaterDB implements WaterDB {
   @override
   Future<Map<DateTime, int>> listTotals(DateTime start, DateTime end) async {
     return _entries
-        .where((e) => e.date >= start && e.date < end)
+        .where((e) => e.date >= start && e.date <= end)
         .groupBy((e) => e.date.startOfDay)
         .toHashMap((e) => MapEntry(e.key, e.elements.sum((i) => i.quantity)));
   }

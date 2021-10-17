@@ -1,5 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:interact/interact.dart';
+import 'package:intl/intl.dart';
 import 'package:lrk_common/common.dart';
 import 'package:lrk_gui_cli/globals.dart';
 import 'package:lrk_health_water/water.dart';
@@ -28,6 +29,7 @@ class HealthWaterCommand extends Command {
   HealthWaterCommand() {
     addSubcommand(HealthWaterAddCommand());
     addSubcommand(HealthWaterShowCommand());
+    addSubcommand(HealthWaterHistoryCommand());
   }
 }
 
@@ -38,29 +40,47 @@ class HealthWaterShowCommand extends Command {
   @override
   final String description = """Shows current water consumption""";
 
-  HealthWaterShowCommand() {}
-
   @override
   Future<void> run() async {
     var app = di.get<WaterApp>();
 
     var total = await app.getTotal();
 
-    print("Water consumption today: $total ml");
+    final ifmt = NumberFormat("#,###");
+
+    print("Water consumption today: ${ifmt.format(total)} ml");
   }
+}
 
-  int toIntGreaterThanZero(String x) {
-    var result = int.tryParse(x);
+class HealthWaterHistoryCommand extends Command {
+  @override
+  final String name = "hist";
 
-    if (result == null) {
-      throw ValidationError('Should be a number');
+  @override
+  final String description = """Shows water consumption history""";
+
+  @override
+  Future<void> run() async {
+    var clock = di.get<Clock>();
+    var app = di.get<WaterApp>();
+
+    var end = clock.now().startOfDay;
+    var start = end.addDays(-14, true);
+
+    var totals = await app.listTotals(start, end);
+    totals.sort((a, b) => b.day.timestamp - a.day.timestamp);
+
+    final dfmt = DateFormat().add_yMd();
+    final ifmt = NumberFormat("#,###");
+
+    print("Water consumption history");
+    for (var total in totals) {
+      if (total.day == end) {
+        print("Today: ${ifmt.format(total.total)} ml");
+      } else {
+        print("${dfmt.format(total.day)}: ${ifmt.format(total.total)} ml");
+      }
     }
-
-    if (result <= 0) {
-      throw ValidationError('Should greater than 0');
-    }
-
-    return result;
   }
 }
 
@@ -121,16 +141,24 @@ Arguments:
   }
 
   int toIntGreaterThanZero(String x) {
-    var result = int.tryParse(x);
+    final ifmt = NumberFormat("#");
 
-    if (result == null) {
-      throw ValidationError('Should be a number');
+    num result;
+
+    try {
+      result = ifmt.parse(x);
+    } on FormatException catch (e) {
+      throw ValidationError('Should be a integral number greater than 0');
     }
 
     if (result <= 0) {
       throw ValidationError('Should greater than 0');
     }
 
-    return result;
+    if (result - result.floor() > 0) {
+      throw ValidationError('Should be a integral number greater than 0');
+    }
+
+    return result.toInt();
   }
 }
