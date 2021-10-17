@@ -1,4 +1,4 @@
-import 'package:quiver/collection.dart';
+import 'package:lrk_common/common.dart';
 
 class WaterConfig {
   final int startingHourOfTheDay;

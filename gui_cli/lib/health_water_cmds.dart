@@ -7,7 +7,10 @@ import 'package:lrk_health_water/water.dart';
 import 'globals.dart';
 
 class HealthCommand extends Command {
+  @override
   final String name = "health";
+
+  @override
   final String description = "Health related apps";
 
   HealthCommand() {
@@ -16,26 +19,63 @@ class HealthCommand extends Command {
 }
 
 class HealthWaterCommand extends Command {
+  @override
   final String name = "water";
+
+  @override
   final String description = "Water consumption records";
 
   HealthWaterCommand() {
     addSubcommand(HealthWaterAddCommand());
+    addSubcommand(HealthWaterShowCommand());
+  }
+}
+
+class HealthWaterShowCommand extends Command {
+  @override
+  final String name = "show";
+
+  @override
+  final String description = """Shows current water consumption""";
+
+  HealthWaterShowCommand() {}
+
+  @override
+  Future<void> run() async {
+    var app = di.get<WaterApp>();
+
+    var total = await app.getTotal();
+
+    print("Water consumption today: $total ml");
+  }
+
+  int toIntGreaterThanZero(String x) {
+    var result = int.tryParse(x);
+
+    if (result == null) {
+      throw ValidationError('Should be a number');
+    }
+
+    if (result <= 0) {
+      throw ValidationError('Should greater than 0');
+    }
+
+    return result;
   }
 }
 
 class HealthWaterAddCommand extends Command {
+  @override
   final String name = "add";
+
+  @override
   final String description = """Adds a water consumption record
 
 Arguments:
  quantity, in ml    
  glass type, optional, defaults to glass""";
 
-  HealthWaterAddCommand() {
-    argParser.addFlag('all', abbr: 'a');
-  }
-
+  @override
   Future<void> run() async {
     var args = argResults?.rest ?? <String>[];
     int quantity = 0;
@@ -78,8 +118,6 @@ Arguments:
     var total = await app.getTotal();
 
     print("Water consumption today: $total ml");
-
-    await app.close();
   }
 
   int toIntGreaterThanZero(String x) {

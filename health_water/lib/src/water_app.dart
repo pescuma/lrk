@@ -15,10 +15,10 @@ class WaterApp {
 
   WaterApp(this._db, this._clock);
 
-  Future<void> close() async {
+  Future<void> dispose() async {
     _dayChangeTask?.cancel();
 
-    events.emit('close');
+    events.emit('dispose');
   }
 
   Future<WaterConfig> getConfig() async {

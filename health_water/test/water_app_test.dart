@@ -10,7 +10,7 @@ void main() {
 
       body(app, time);
 
-      time.await(app.close());
+      time.await(app.dispose());
     });
   }
 
