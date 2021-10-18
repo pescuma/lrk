@@ -1,5 +1,5 @@
 import 'package:lrk_common/common.dart';
-import 'package:lrk_health_water/src/water_model.dart';
+import 'water_model.dart';
 
 /// All quantities in ml
 abstract class WaterDB {

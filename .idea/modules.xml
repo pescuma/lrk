@@ -9,6 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/gui_flutter/lrk_gui_flutter.iml" filepath="$PROJECT_DIR$/gui_flutter/lrk_gui_flutter.iml" />
       <module fileurl="file://$PROJECT_DIR$/gui_flutter/android/lrk_gui_flutter_android.iml" filepath="$PROJECT_DIR$/android/lrk_gui_flutter_android.iml" />
       <module fileurl="file://$PROJECT_DIR$/health_water/lrk_health_water.iml" filepath="$PROJECT_DIR$/health_water/lrk_health_water.iml" />
+      <module fileurl="file://$PROJECT_DIR$/users/lrk_users.iml" filepath="$PROJECT_DIR$/users/lrk_users.iml" />
     </modules>
   </component>
 </project>

@@ -1,5 +1,5 @@
-name: lrk_health_water
-description: Life Records Keeper water consumption application
+name: lrk_users
+description: Life Records Keeper users application
 version: 0.0.1
 homepage: https://github.com/pescuma/lrk
 

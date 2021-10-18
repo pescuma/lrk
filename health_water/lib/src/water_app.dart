@@ -1,8 +1,9 @@
 import 'package:lrk_common/common.dart';
-import 'package:lrk_health_water/src/water_db.dart';
-import 'package:lrk_health_water/src/water_model.dart';
 
-class WaterApp {
+import 'water_db.dart';
+import 'water_model.dart';
+
+class WaterApp extends BaseApp {
   final WaterDB _db;
   final Clock _clock;
   WaterConfig? _config;
@@ -11,14 +12,13 @@ class WaterApp {
   ScheduledTask? _dayChangeTask;
   List<WaterConsumption>? _glasses;
 
-  EventEmitter events = EventEmitter();
-
   WaterApp(this._db, this._clock);
 
+  @override
   Future<void> dispose() async {
     _dayChangeTask?.cancel();
 
-    events.emit('dispose');
+    super.dispose();
   }
 
   Future<WaterConfig> getConfig() async {

@@ -7,5 +7,6 @@ export 'package:intl/intl.dart';
 export 'package:lazy_memo/lazy_memo.dart';
 export 'package:quiver/collection.dart';
 
+export 'src/base_app.dart';
 export 'src/clock.dart';
 export 'src/day_total.dart';
