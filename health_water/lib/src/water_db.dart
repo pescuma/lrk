@@ -1,10 +1,11 @@
 import 'package:lrk_common/common.dart';
+
 import 'water_model.dart';
 
 /// All quantities in ml
 abstract class WaterDB {
-  Future<WaterConfig> getConfig();
-  Future<void> updateConfig(WaterConfig config);
+  Future<WaterConfig?> getConfig();
+  Future<WaterConfig> saveConfig(WaterConfig config);
 
   Future<int> getTotal(DateTime day);
 
@@ -22,14 +23,14 @@ class MemoryWaterDB implements WaterDB {
   WaterConfig? _config;
 
   @override
-  Future<WaterConfig> getConfig() async {
-    _config ??= WaterConfig();
-    return _config!;
+  Future<WaterConfig?> getConfig() async {
+    return _config;
   }
 
   @override
-  Future<void> updateConfig(WaterConfig config) async {
+  Future<WaterConfig> saveConfig(WaterConfig config) async {
     _config = config;
+    return config;
   }
 
   @override

@@ -23,6 +23,7 @@ class WaterApp extends BaseApp {
 
   Future<WaterConfig> getConfig() async {
     _config ??= await _db.getConfig();
+    _config ??= await _db.saveConfig(WaterConfig());
     return _config!;
   }
 
@@ -33,7 +34,7 @@ class WaterApp extends BaseApp {
 
     _stopDayChangeTask();
 
-    await _db.updateConfig(config);
+    await _db.saveConfig(config);
 
     _config = config;
 

@@ -14,7 +14,7 @@ class WaterSqliteDB extends _$WaterSqliteDB implements model.WaterDB {
   model.WaterConfig? _config;
 
   @override
-  Future<model.WaterConfig> getConfig() async {
+  Future<model.WaterConfig?> getConfig() async {
     if (_config != null) {
       return _config!;
     }
@@ -25,15 +25,13 @@ class WaterSqliteDB extends _$WaterSqliteDB implements model.WaterDB {
       _config = model.WaterConfig(
           startingHourOfTheDay: cfg.startingHourOfTheDay, //
           targetConsumption: cfg.targetConsumption);
-    } else {
-      _config = model.WaterConfig();
     }
 
-    return _config!;
+    return _config;
   }
 
   @override
-  Future<void> updateConfig(model.WaterConfig config) async {
+  Future<model.WaterConfig> saveConfig(model.WaterConfig config) async {
     var cfg = WaterConfig(
         id: 0,
         startingHourOfTheDay: config.startingHourOfTheDay,
@@ -42,6 +40,8 @@ class WaterSqliteDB extends _$WaterSqliteDB implements model.WaterDB {
     await into(waterConfigs).insertOnConflictUpdate(cfg);
 
     _config = config;
+
+    return config;
   }
 
   @override
@@ -72,7 +72,9 @@ class WaterSqliteDB extends _$WaterSqliteDB implements model.WaterDB {
   Future<List<model.WaterConsumption>> listDetails(DateTime day) async {
     var result = await (select(waterConsumptions)..where((c) => c.date.equals(day))).get();
 
-    return result.map((c) => WaterConsumptionRow.fromDB(c)).toList();
+    return result
+        .map((c) => model.WaterConsumption(c.date, c.quantity, model.Glass.values[c.glass]))
+        .toList();
   }
 
   @override
@@ -81,20 +83,17 @@ class WaterSqliteDB extends _$WaterSqliteDB implements model.WaterDB {
 
     var total = await getTotal(day);
 
-    var wc = WaterConsumptionsCompanion(
-        date: Value(consumption.date),
-        quantity: Value(consumption.quantity),
-        glass: Value(consumption.glass.index));
+    var wc = WaterConsumption(
+        date: consumption.date, quantity: consumption.quantity, glass: consumption.glass.index);
 
     var wt = WaterTotal(date: day, quantity: total + consumption.quantity);
-    int id = -1;
 
     await transaction(() async {
-      id = await into(waterConsumptions).insert(wc);
+      await into(waterConsumptions).insert(wc);
       await into(waterTotals).insertOnConflictUpdate(wt);
     });
 
-    return WaterConsumptionRow.fromModel(id, consumption);
+    return consumption;
   }
 }
 
@@ -108,10 +107,12 @@ class WaterConfigs extends Table {
 }
 
 class WaterConsumptions extends Table {
-  IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get date => dateTime()();
   IntColumn get quantity => integer()();
   IntColumn get glass => integer()();
+
+  @override
+  Set<Column> get primaryKey => {date};
 }
 
 class WaterTotals extends Table {
@@ -120,15 +121,4 @@ class WaterTotals extends Table {
 
   @override
   Set<Column> get primaryKey => {date};
-}
-
-class WaterConsumptionRow extends model.WaterConsumption {
-  final int id;
-
-  WaterConsumptionRow.fromModel(this.id, model.WaterConsumption c)
-      : super(c.date, c.quantity, c.glass);
-
-  WaterConsumptionRow.fromDB(WaterConsumption c)
-      : id = c.id,
-        super(c.date, c.quantity, model.Glass.values[c.glass]);
 }

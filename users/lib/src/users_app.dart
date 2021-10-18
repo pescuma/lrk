@@ -17,16 +17,12 @@ class UsersApp extends BaseApp {
   Future<User> getCurrentUser() async {
     if (_currentUser == null) {
       var config = await _db.getConfig();
-      if (config == null) {
-        config = UsersConfig();
-        config = await _db.saveConfig(config);
-      }
+      config ??= await _db.saveConfig(UsersConfig());
 
       _currentUser = await _db.getUser(config.currentUser);
       if (_currentUser == null) {
         assert(config.currentUser == 0);
-        _currentUser = User(0);
-        await _db.addUser(_currentUser!);
+        _currentUser = await _db.addUser(User(0));
       }
     }
 
@@ -43,7 +39,7 @@ class UsersApp extends BaseApp {
       throw Exception('Unknown user $userId');
     }
 
-    await _db.saveUserConfig(UserConfig(user.id));
+    await _db.saveConfig(UsersConfig(user.id));
 
     _currentUser = user;
 
@@ -57,12 +53,17 @@ class UsersApp extends BaseApp {
       var user = await getCurrentUser();
 
       _currentUserConfig = await _db.getUserConfig(user.id);
-      if (_currentUserConfig == null) {
-        _currentUserConfig = UserConfig(user.id);
-        _currentUserConfig = await _db.saveUserConfig(_currentUserConfig!);
-      }
+      _currentUserConfig ??= await _db.saveUserConfig(UserConfig(user.id));
     }
+    return _currentUserConfig!;
+  }
 
+  Future<UserConfig> saveCurrentUserConfig(UserConfig config) async {
+    var user = await getCurrentUser();
+
+    assert(user.id == config.userId);
+
+    _currentUserConfig = await _db.saveUserConfig(config);
     return _currentUserConfig!;
   }
 }
