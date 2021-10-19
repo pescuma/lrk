@@ -14,6 +14,10 @@ class UsersApp extends BaseApp {
     return await _db.listUsers();
   }
 
+  Future<User> addUser(User user) async {
+    return await _db.addUser(user);
+  }
+
   Future<User> getCurrentUser() async {
     if (_currentUser == null) {
       var config = await _db.getConfig();
@@ -22,7 +26,7 @@ class UsersApp extends BaseApp {
       _currentUser = await _db.getUser(config.currentUser);
       if (_currentUser == null) {
         assert(config.currentUser == 0);
-        _currentUser = await _db.addUser(User(0));
+        _currentUser = await _db.addUser(User(id: 0));
       }
     }
 

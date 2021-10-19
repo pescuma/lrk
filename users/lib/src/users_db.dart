@@ -37,7 +37,7 @@ class MemoryUsersDB implements UsersDB {
 
   @override
   Future<User> addUser(User user) async {
-    user = User(_nextUserId++, name: user.name, nickname: user.nickname);
+    user = User(id: _nextUserId++, name: user.name, nickname: user.nickname);
     _users[user.id] = user;
     return user;
   }

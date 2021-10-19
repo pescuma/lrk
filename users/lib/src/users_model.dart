@@ -35,7 +35,7 @@ class User {
   final String name;
   final String nickname;
 
-  User(this.id, {this.name = '', this.nickname = ''});
+  User({this.id = -1, this.name = '', this.nickname = ''});
 
   @override
   bool operator ==(Object other) =>

@@ -34,12 +34,17 @@ class FakeTime {
 
   T await<T>(Future<T> x) {
     late T result;
+    Exception? ex = null;
 
     x.then((v) {
       result = v;
+    }).onError<Exception>((error, stackTrace) {
+      ex = error;
     });
 
     _async.flushMicrotasks();
+
+    if (ex != null) throw ex!;
 
     return result;
   }
