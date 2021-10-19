@@ -9,6 +9,7 @@ import 'package:lrk_db_sqlite/db_sqlite.dart';
 import 'package:lrk_gui_cli/globals.dart';
 import 'package:lrk_gui_cli/health_water_cmds.dart';
 import 'package:lrk_health_water/water.dart';
+import 'package:lrk_users/users.dart';
 
 Future<void> main(List<String> args) async {
   Intl.defaultLocale = await findSystemLocale();
@@ -22,19 +23,23 @@ Future<void> main(List<String> args) async {
 
   Directory dbDirectory = await _getDBsDirectory(parsedArgs);
 
-  final db = DB(dbDirectory);
+  try {
+    final db = DB(dbDirectory);
 
-  di.provide<WaterDB>((_) => db.Water);
-  di.provide((_) => Clock());
-  di.provide((_) => WaterApp(_<WaterDB>(), _<Clock>()));
+    di.provide((_) => Clock());
+    di.provide<UsersDB>((_) => MemoryUsersDB());
+    di.provide((_) => UsersApp(_<UsersDB>()));
+    di.provide<WaterDB>((_) => db.createWaterDB());
+    di.provide((_) => WaterApp(_<WaterDB>(), _<UsersApp>(), _<Clock>()));
 
-  await runner.runCommand(parsedArgs).catchError((error) {
-    if (error is! UsageException) throw error;
-    print(error);
-    exit(64);
-  });
-
-  await di.getCached<WaterApp>()?.dispose();
+    await runner.runCommand(parsedArgs).catchError((error) {
+      if (error is! UsageException) throw error;
+      print(error);
+      exit(64);
+    });
+  } finally {
+    await di.disposeCreated();
+  }
 }
 
 Future<Directory> _getDBsDirectory(ArgResults parsedArgs) async {

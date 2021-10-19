@@ -10,9 +10,9 @@ import 'water_db_sqlite.dart';
 class DB {
   final Directory _folder;
 
-  late WaterDB Water = WaterSqliteDB(_openConnection);
-
   DB(this._folder);
+
+  WaterDB createWaterDB() => WaterSqliteDB(_openConnection);
 
   LazyDatabase _openConnection(String name) {
     return LazyDatabase(() async {

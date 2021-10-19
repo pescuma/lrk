@@ -1,55 +1,57 @@
-import 'package:dart_date/dart_date.dart';
+import 'package:lrk_common/common.dart';
 import 'package:lrk_common_testing/common_testing.dart';
 import 'package:lrk_health_water/water.dart';
+import 'package:lrk_users/users.dart';
 import 'package:test/test.dart';
 
 void main() {
-  void Function() prepare(void Function(WaterApp, FakeTime) body) {
+  void Function() prepare(void Function(WaterApp, UsersApp, FakeTime) body) {
     return fake((time) {
-      var app = WaterApp(MemoryWaterDB(), time.clock);
+      var users = UsersApp(MemoryUsersDB());
+      var app = WaterApp(MemoryWaterDB(), users, time.clock);
 
-      body(app, time);
+      body(app, users, time);
 
       time.await(app.dispose());
     });
   }
 
-  test('Empty', prepare((app, time) {
+  test('Empty', prepare((app, users, time) {
     expect(time.await(app.getTotal()), equals(0));
     expect(time.await(app.getGlasses()), isEmpty);
   }));
 
-  test('Today', prepare((app, time) {
+  test('Today', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 2, 3, 4, 5);
 
     expect(time.await(app.getDay()), equals(time.now.startOfDay));
   }));
 
-  test('Respect start of day - before', prepare((app, time) {
+  test('Respect start of day - before', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 2, 2);
 
-    time.await(app.setConfig(WaterConfig(startingHourOfTheDay: 3)));
+    time.await(users.setCurrentUserConfig(UserConfig(startingHourOfTheDay: 3)));
 
     expect(time.await(app.getDay()), equals(DateTime(2000, 1, 1)));
   }));
 
-  test('Respect start of day - same', prepare((app, time) {
+  test('Respect start of day - same', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 2, 3);
 
-    time.await(app.setConfig(WaterConfig(startingHourOfTheDay: 3)));
+    time.await(users.setCurrentUserConfig(UserConfig(startingHourOfTheDay: 3)));
 
     expect(time.await(app.getDay()), equals(DateTime(2000, 1, 2)));
   }));
 
-  test('Respect start of day - after', prepare((app, time) {
+  test('Respect start of day - after', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 2, 4);
 
-    time.await(app.setConfig(WaterConfig(startingHourOfTheDay: 3)));
+    time.await(users.setCurrentUserConfig(UserConfig(startingHourOfTheDay: 3)));
 
     expect(time.await(app.getDay()), equals(DateTime(2000, 1, 2)));
   }));
 
-  test('Not reached', prepare((app, time) {
+  test('Not reached', prepare((app, users, time) {
     time.await(app.setConfig(WaterConfig(targetConsumption: 2000)));
 
     time.await(app.add(100));
@@ -60,7 +62,7 @@ void main() {
     expect(time.await(app.reachedTarget()), equals(false));
   }));
 
-  test('Reached', prepare((app, time) {
+  test('Reached', prepare((app, users, time) {
     time.await(app.setConfig(WaterConfig(targetConsumption: 2000)));
 
     time.await(app.add(100));
@@ -71,7 +73,7 @@ void main() {
     expect(time.await(app.reachedTarget()), equals(true));
   }));
 
-  test('Glasses', prepare((app, time) {
+  test('Glasses', prepare((app, users, time) {
     time.await(app.add(100));
     time.await(app.add(200, Glass.coffeeCup));
     time.await(app.add(300, Glass.mug));
@@ -79,13 +81,13 @@ void main() {
     expect(
         time.await(app.getGlasses()),
         equals([
-          WaterConsumption(time.now, 100, Glass.glass),
-          WaterConsumption(time.now, 200, Glass.coffeeCup),
-          WaterConsumption(time.now, 300, Glass.mug)
+          WaterConsumption(0, time.now, 100, Glass.glass),
+          WaterConsumption(0, time.now, 200, Glass.coffeeCup),
+          WaterConsumption(0, time.now, 300, Glass.mug)
         ]));
   }));
 
-  test('Update current day', prepare((app, time) {
+  test('Update current day', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 1);
 
     var day1 = time.await(app.getDay());
@@ -98,7 +100,7 @@ void main() {
     expect(day2, equals(DateTime(2000, 1, 2)));
   }));
 
-  test('Update day only if current', prepare((app, time) {
+  test('Update day only if current', prepare((app, users, time) {
     time.now = DateTime(2001, 1, 1);
     var past = DateTime(2000, 1, 1);
 
@@ -114,7 +116,7 @@ void main() {
     expect(day2, equals(past));
   }));
 
-  test('Change on setDate', prepare((app, time) {
+  test('Change on setDate', prepare((app, users, time) {
     var changes = 0;
     app.events.on('change', () => changes++);
 
@@ -123,7 +125,7 @@ void main() {
     expect(changes, equals(1));
   }));
 
-  test('No change on lazy init', prepare((app, time) {
+  test('No change on lazy init', prepare((app, users, time) {
     var changes = 0;
     app.events.on('change', () => changes++);
 
@@ -132,7 +134,7 @@ void main() {
     expect(changes, equals(0));
   }));
 
-  test('Change on new day', prepare((app, time) {
+  test('Change on new day', prepare((app, users, time) {
     var changes = 0;
     app.events.on('change', () => changes++);
 
@@ -143,33 +145,39 @@ void main() {
     expect(changes, equals(1));
   }));
 
-  test('Change on add', prepare((app, time) {
+  test('Change on add', prepare((app, users, time) {
     var changes = 0;
-    app.events.on('change', () => changes++);
+    app.events.on('change', (what) {
+      if (what == 'glasses') {
+        changes++;
+      }
+    });
 
     time.await(app.add(200));
 
     expect(changes, equals(1));
   }));
 
-  test('Change on config', prepare((app, time) {
+  test('Change on config', prepare((app, users, time) {
     var changes = 0;
-    app.events.on('change', () => changes++);
+    app.events.on('change', (what) {
+      if (what == 'config') {
+        changes++;
+      }
+    });
 
-    time.await(app.setConfig(WaterConfig(startingHourOfTheDay: 12)));
+    time.await(app.setConfig(WaterConfig(targetConsumption: 12)));
 
     expect(changes, equals(1));
   }));
 
-  test('No change on same config', prepare((app, time) {
+  test('No change on same config', prepare((app, users, time) {
     var changes = 0;
     app.events.on('change', () => changes++);
 
     var config = time.await(app.getConfig());
 
-    time.await(app.setConfig(WaterConfig(
-        startingHourOfTheDay: config.startingHourOfTheDay,
-        targetConsumption: config.targetConsumption)));
+    time.await(app.setConfig(WaterConfig(targetConsumption: config.targetConsumption)));
 
     expect(changes, equals(0));
   }));

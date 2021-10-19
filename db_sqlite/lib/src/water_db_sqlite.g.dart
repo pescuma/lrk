@@ -9,19 +9,13 @@ part of 'water_db_sqlite.dart';
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class WaterConfig extends DataClass implements Insertable<WaterConfig> {
   final int id;
-  final int startingHourOfTheDay;
   final int targetConsumption;
-  WaterConfig(
-      {required this.id,
-      required this.startingHourOfTheDay,
-      required this.targetConsumption});
+  WaterConfig({required this.id, required this.targetConsumption});
   factory WaterConfig.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return WaterConfig(
       id: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
-      startingHourOfTheDay: const IntType().mapFromDatabaseResponse(
-          data['${effectivePrefix}starting_hour_of_the_day'])!,
       targetConsumption: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}target_consumption'])!,
     );
@@ -30,7 +24,6 @@ class WaterConfig extends DataClass implements Insertable<WaterConfig> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['starting_hour_of_the_day'] = Variable<int>(startingHourOfTheDay);
     map['target_consumption'] = Variable<int>(targetConsumption);
     return map;
   }
@@ -38,7 +31,6 @@ class WaterConfig extends DataClass implements Insertable<WaterConfig> {
   WaterConfigsCompanion toCompanion(bool nullToAbsent) {
     return WaterConfigsCompanion(
       id: Value(id),
-      startingHourOfTheDay: Value(startingHourOfTheDay),
       targetConsumption: Value(targetConsumption),
     );
   }
@@ -48,8 +40,6 @@ class WaterConfig extends DataClass implements Insertable<WaterConfig> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return WaterConfig(
       id: serializer.fromJson<int>(json['id']),
-      startingHourOfTheDay:
-          serializer.fromJson<int>(json['startingHourOfTheDay']),
       targetConsumption: serializer.fromJson<int>(json['targetConsumption']),
     );
   }
@@ -58,74 +48,58 @@ class WaterConfig extends DataClass implements Insertable<WaterConfig> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'startingHourOfTheDay': serializer.toJson<int>(startingHourOfTheDay),
       'targetConsumption': serializer.toJson<int>(targetConsumption),
     };
   }
 
-  WaterConfig copyWith(
-          {int? id, int? startingHourOfTheDay, int? targetConsumption}) =>
-      WaterConfig(
+  WaterConfig copyWith({int? id, int? targetConsumption}) => WaterConfig(
         id: id ?? this.id,
-        startingHourOfTheDay: startingHourOfTheDay ?? this.startingHourOfTheDay,
         targetConsumption: targetConsumption ?? this.targetConsumption,
       );
   @override
   String toString() {
     return (StringBuffer('WaterConfig(')
           ..write('id: $id, ')
-          ..write('startingHourOfTheDay: $startingHourOfTheDay, ')
           ..write('targetConsumption: $targetConsumption')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, startingHourOfTheDay, targetConsumption);
+  int get hashCode => Object.hash(id, targetConsumption);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WaterConfig &&
           other.id == this.id &&
-          other.startingHourOfTheDay == this.startingHourOfTheDay &&
           other.targetConsumption == this.targetConsumption);
 }
 
 class WaterConfigsCompanion extends UpdateCompanion<WaterConfig> {
   final Value<int> id;
-  final Value<int> startingHourOfTheDay;
   final Value<int> targetConsumption;
   const WaterConfigsCompanion({
     this.id = const Value.absent(),
-    this.startingHourOfTheDay = const Value.absent(),
     this.targetConsumption = const Value.absent(),
   });
   WaterConfigsCompanion.insert({
     this.id = const Value.absent(),
-    required int startingHourOfTheDay,
     required int targetConsumption,
-  })  : startingHourOfTheDay = Value(startingHourOfTheDay),
-        targetConsumption = Value(targetConsumption);
+  }) : targetConsumption = Value(targetConsumption);
   static Insertable<WaterConfig> custom({
     Expression<int>? id,
-    Expression<int>? startingHourOfTheDay,
     Expression<int>? targetConsumption,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (startingHourOfTheDay != null)
-        'starting_hour_of_the_day': startingHourOfTheDay,
       if (targetConsumption != null) 'target_consumption': targetConsumption,
     });
   }
 
   WaterConfigsCompanion copyWith(
-      {Value<int>? id,
-      Value<int>? startingHourOfTheDay,
-      Value<int>? targetConsumption}) {
+      {Value<int>? id, Value<int>? targetConsumption}) {
     return WaterConfigsCompanion(
       id: id ?? this.id,
-      startingHourOfTheDay: startingHourOfTheDay ?? this.startingHourOfTheDay,
       targetConsumption: targetConsumption ?? this.targetConsumption,
     );
   }
@@ -135,10 +109,6 @@ class WaterConfigsCompanion extends UpdateCompanion<WaterConfig> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
-    }
-    if (startingHourOfTheDay.present) {
-      map['starting_hour_of_the_day'] =
-          Variable<int>(startingHourOfTheDay.value);
     }
     if (targetConsumption.present) {
       map['target_consumption'] = Variable<int>(targetConsumption.value);
@@ -150,7 +120,6 @@ class WaterConfigsCompanion extends UpdateCompanion<WaterConfig> {
   String toString() {
     return (StringBuffer('WaterConfigsCompanion(')
           ..write('id: $id, ')
-          ..write('startingHourOfTheDay: $startingHourOfTheDay, ')
           ..write('targetConsumption: $targetConsumption')
           ..write(')'))
         .toString();
@@ -166,19 +135,13 @@ class $WaterConfigsTable extends WaterConfigs
   late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
       'id', aliasedName, false,
       typeName: 'INTEGER', requiredDuringInsert: false);
-  final VerificationMeta _startingHourOfTheDayMeta =
-      const VerificationMeta('startingHourOfTheDay');
-  late final GeneratedColumn<int?> startingHourOfTheDay = GeneratedColumn<int?>(
-      'starting_hour_of_the_day', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true);
   final VerificationMeta _targetConsumptionMeta =
       const VerificationMeta('targetConsumption');
   late final GeneratedColumn<int?> targetConsumption = GeneratedColumn<int?>(
       'target_consumption', aliasedName, false,
       typeName: 'INTEGER', requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, startingHourOfTheDay, targetConsumption];
+  List<GeneratedColumn> get $columns => [id, targetConsumption];
   @override
   String get aliasedName => _alias ?? 'water_configs';
   @override
@@ -190,14 +153,6 @@ class $WaterConfigsTable extends WaterConfigs
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('starting_hour_of_the_day')) {
-      context.handle(
-          _startingHourOfTheDayMeta,
-          startingHourOfTheDay.isAcceptableOrUnknown(
-              data['starting_hour_of_the_day']!, _startingHourOfTheDayMeta));
-    } else if (isInserting) {
-      context.missing(_startingHourOfTheDayMeta);
     }
     if (data.containsKey('target_consumption')) {
       context.handle(
@@ -604,8 +559,9 @@ class $WaterTotalsTable extends WaterTotals
   }
 }
 
-abstract class _$WaterSqliteDB extends GeneratedDatabase {
-  _$WaterSqliteDB(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+abstract class _$_WaterUserSqliteDB extends GeneratedDatabase {
+  _$_WaterUserSqliteDB(QueryExecutor e)
+      : super(SqlTypeSystem.defaultInstance, e);
   late final $WaterConfigsTable waterConfigs = $WaterConfigsTable(this);
   late final $WaterConsumptionsTable waterConsumptions =
       $WaterConsumptionsTable(this);

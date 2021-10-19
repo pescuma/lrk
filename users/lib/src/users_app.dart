@@ -15,7 +15,11 @@ class UsersApp extends BaseApp {
   }
 
   Future<User> addUser(User user) async {
-    return await _db.addUser(user);
+    var result = await _db.addUser(user);
+
+    await events.emit('add', 'user', result);
+
+    return result;
   }
 
   Future<User> getCurrentUser() async {
@@ -24,9 +28,11 @@ class UsersApp extends BaseApp {
       config ??= await _db.saveConfig(UsersConfig());
 
       _currentUser = await _db.getUser(config.currentUser);
+
       if (_currentUser == null) {
         assert(config.currentUser == 0);
-        _currentUser = await _db.addUser(User(id: 0));
+        _currentUser = await addUser(User());
+        assert(_currentUser!.id == 0);
       }
     }
 
@@ -47,7 +53,7 @@ class UsersApp extends BaseApp {
 
     _currentUser = user;
 
-    events.emit('change', 'currentUser');
+    await events.emit('change', 'currentUser', _currentUser!);
 
     return _currentUser!;
   }
@@ -57,17 +63,22 @@ class UsersApp extends BaseApp {
       var user = await getCurrentUser();
 
       _currentUserConfig = await _db.getUserConfig(user.id);
-      _currentUserConfig ??= await _db.saveUserConfig(UserConfig(user.id));
+      _currentUserConfig ??= await _db.saveUserConfig(UserConfig(userId: user.id));
     }
     return _currentUserConfig!;
   }
 
-  Future<UserConfig> saveCurrentUserConfig(UserConfig config) async {
+  Future<UserConfig> setCurrentUserConfig(UserConfig config) async {
     var user = await getCurrentUser();
 
-    assert(user.id == config.userId);
+    if (config.userId != user.id) {
+      config = config.withUserId(user.id);
+    }
 
     _currentUserConfig = await _db.saveUserConfig(config);
+
+    await events.emit('change', 'currentUserConfig', _currentUserConfig!);
+
     return _currentUserConfig!;
   }
 }

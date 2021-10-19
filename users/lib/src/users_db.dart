@@ -1,6 +1,8 @@
+import 'package:lrk_common/common.dart';
+
 import 'users_model.dart';
 
-abstract class UsersDB {
+abstract class UsersDB implements Disposable {
   Future<UsersConfig?> getConfig();
   Future<UsersConfig> saveConfig(UsersConfig config);
 
@@ -63,4 +65,7 @@ class MemoryUsersDB implements UsersDB {
     _userConfigs[config.userId] = config;
     return config;
   }
+
+  @override
+  Future<void> dispose() async {}
 }

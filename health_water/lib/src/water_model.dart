@@ -1,16 +1,20 @@
 import 'package:lrk_common/common.dart';
 
 class WaterConfig {
-  final int startingHourOfTheDay;
+  final int userId;
 
   /// ml
   final int targetConsumption;
 
-  const WaterConfig({this.startingHourOfTheDay = 0, this.targetConsumption = 2000});
+  const WaterConfig({this.userId = -1, this.targetConsumption = 2000});
+
+  WaterConfig withUserId(int userId) {
+    return WaterConfig(userId: userId, targetConsumption: targetConsumption);
+  }
 
   @override
   String toString() {
-    return 'WaterConfig{start: $startingHourOfTheDay, target: $targetConsumption}';
+    return 'WaterConfig{$userId, target: $targetConsumption}';
   }
 
   @override
@@ -18,14 +22,15 @@ class WaterConfig {
       identical(this, other) ||
       other is WaterConfig &&
           runtimeType == other.runtimeType &&
-          startingHourOfTheDay == other.startingHourOfTheDay &&
+          userId == other.userId &&
           targetConsumption == other.targetConsumption;
 
   @override
-  int get hashCode => startingHourOfTheDay.hashCode ^ targetConsumption.hashCode;
+  int get hashCode => userId.hashCode ^ targetConsumption.hashCode;
 }
 
 class WaterConsumption {
+  final int userId;
   final DateTime date;
 
   /// ml
@@ -33,11 +38,11 @@ class WaterConsumption {
 
   final Glass glass;
 
-  const WaterConsumption(this.date, this.quantity, this.glass);
+  const WaterConsumption(this.userId, this.date, this.quantity, this.glass);
 
   @override
   String toString() {
-    return 'WaterConsumption{$date, ${quantity}ml, $glass}';
+    return 'WaterConsumption{$userId, $date, ${quantity}ml, $glass}';
   }
 
   @override
@@ -45,12 +50,13 @@ class WaterConsumption {
       identical(this, other) ||
       other is WaterConsumption &&
           runtimeType == other.runtimeType &&
+          userId == other.userId &&
           date == other.date &&
           quantity == other.quantity &&
           glass == other.glass;
 
   @override
-  int get hashCode => date.hashCode ^ quantity.hashCode ^ glass.hashCode;
+  int get hashCode => userId.hashCode ^ date.hashCode ^ quantity.hashCode ^ glass.hashCode;
 }
 
 enum Glass { glass, coffeeCup, cocktailGlass, wineGlass, flute, mug, sodaBottle, wineBottle, tonic }

@@ -1,9 +1,9 @@
-import 'package:events2/events2.dart';
+import 'disposer.dart';
+import 'event_emitter.dart';
 
-abstract class BaseApp {
-  EventEmitter events = EventEmitter();
+abstract class BaseApp implements Disposable {
+  var events = EventEmitter();
 
-  Future<void> dispose() async {
-    events.emit('dispose');
-  }
+  @override
+  Future<void> dispose() async {}
 }

@@ -11,11 +11,11 @@ dependencies:
   dart_date: ^1.1.0
   darq: ^1.1.1
   lazy_memo: ^0.1.2
-  events2: ^1.0.0
   clock: ^1.1.0
   cron: ^0.3.2
   quiver: ^3.0.1
   intl: ^0.17.0
+  klizma: ^0.2.0
 
 dev_dependencies:
   lints: ^1.0.0

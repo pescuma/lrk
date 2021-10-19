@@ -16,7 +16,11 @@ class UserConfig {
   final int userId;
   final int startingHourOfTheDay;
 
-  UserConfig(this.userId, {this.startingHourOfTheDay = 0});
+  UserConfig({this.userId = -1, this.startingHourOfTheDay = 0});
+
+  UserConfig withUserId(int userId) {
+    return UserConfig(userId: userId, startingHourOfTheDay: startingHourOfTheDay);
+  }
 
   @override
   bool operator ==(Object other) =>
