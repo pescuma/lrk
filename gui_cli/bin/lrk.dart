@@ -27,7 +27,7 @@ Future<void> main(List<String> args) async {
     final db = DB(dbDirectory);
 
     di.provide((_) => Clock());
-    di.provide<UsersDB>((_) => MemoryUsersDB());
+    di.provide<UsersDB>((_) => db.createUsersDB());
     di.provide((_) => UsersApp(_<UsersDB>()));
     di.provide<WaterDB>((_) => db.createWaterDB());
     di.provide((_) => WaterApp(_<WaterDB>(), _<UsersApp>(), _<Clock>()));

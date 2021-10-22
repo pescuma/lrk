@@ -157,7 +157,7 @@ class WaterApp extends BaseApp {
   void _onCurrentUserConfigChange(UserConfig userConfig) {
     var restartTask = _day != null &&
         _userConfig != null &&
-        _userConfig!.startingHourOfTheDay != userConfig.startingHourOfTheDay &&
+        _userConfig!.dayChangeHour != userConfig.dayChangeHour &&
         _day != _getCurrentDay(userConfig);
 
     if (restartTask) {
@@ -174,7 +174,7 @@ class WaterApp extends BaseApp {
   DateTime _getCurrentDay(UserConfig config) {
     var now = _clock.now();
 
-    if (now.hour < config.startingHourOfTheDay) {
+    if (now.hour < config.dayChangeHour) {
       now = now.addDays(-1, true);
     }
 
@@ -185,7 +185,7 @@ class WaterApp extends BaseApp {
     if (_dayChangeTask != null) return;
 
     _dayChangeTask = _clock.scheduleCron(
-        "0 ${config.startingHourOfTheDay} * * *", //
+        "0 ${config.dayChangeHour} * * *", //
         () => setDay(_clock.now()));
   }
 

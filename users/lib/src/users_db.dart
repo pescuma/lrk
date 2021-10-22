@@ -6,7 +6,7 @@ abstract class UsersDB implements Disposable {
   Future<UsersConfig?> getConfig();
   Future<UsersConfig> saveConfig(UsersConfig config);
 
-  Future<User?> getUser(int id);
+  Future<User?> getUser(int userId);
   Future<User> addUser(User user);
   Future<User> updateUser(User user);
   Future<List<User>> listUsers();
@@ -19,7 +19,7 @@ class MemoryUsersDB implements UsersDB {
   UsersConfig? _config;
   final _userConfigs = <int, UserConfig>{};
   final _users = <int, User>{};
-  var _nextUserId = 0;
+  var _nextUserId = 1;
 
   @override
   Future<UsersConfig?> getConfig() async {
@@ -33,13 +33,13 @@ class MemoryUsersDB implements UsersDB {
   }
 
   @override
-  Future<User?> getUser(int id) async {
-    return _users[id];
+  Future<User?> getUser(int userId) async {
+    return _users[userId];
   }
 
   @override
   Future<User> addUser(User user) async {
-    user = User(id: _nextUserId++, name: user.name, nickname: user.nickname);
+    user = User(id: _nextUserId++, nickname: user.nickname, name: user.name);
     _users[user.id] = user;
     return user;
   }

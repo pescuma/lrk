@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:lrk_common/common.dart';
 import 'package:lrk_health_water/water.dart' as model;
 
-part 'water_db_sqlite.g.dart';
+part 'health_water_db_sqlite.g.dart';
 
 class WaterSqliteDB implements model.WaterDB {
   final LazyDatabase Function(String) _open;
@@ -30,7 +30,7 @@ class WaterSqliteDB implements model.WaterDB {
   }
 
   /// start: inclusive
-  /// end: exclusive
+  /// end: inclusive
   @override
   Future<Map<DateTime, int>> listTotals(int userId, DateTime start, DateTime end) {
     return _getDB(userId).listTotals(start, end);
@@ -53,10 +53,9 @@ class WaterSqliteDB implements model.WaterDB {
   }
 }
 
-@DriftDatabase(tables: [WaterConfigs, WaterConsumptions, WaterTotals])
+@DriftDatabase(tables: [WaterConfigs, WaterDetails, WatersPerDay])
 class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
   final int _userId;
-  model.WaterConfig? _config;
 
   _WaterUserSqliteDB(this._userId, LazyDatabase Function(String) open)
       : super(open('$_userId-health-water.db'));
@@ -65,58 +64,59 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
   int get schemaVersion => 1;
 
   Future<model.WaterConfig?> getConfig() async {
-    if (_config != null) {
-      return _config!;
-    }
-
     var cfg = await select(waterConfigs).getSingleOrNull();
 
-    if (cfg != null) {
-      _config = model.WaterConfig(userId: _userId, targetConsumption: cfg.targetConsumption);
+    if (cfg == null) {
+      return null;
     }
 
-    return _config;
+    return toModelConfig(cfg);
   }
 
   Future<model.WaterConfig> saveConfig(model.WaterConfig config) async {
-    var cfg = WaterConfig(id: 0, targetConsumption: config.targetConsumption);
+    var cfg = fromModelConfig(config);
 
     await into(waterConfigs).insertOnConflictUpdate(cfg);
-
-    _config = config;
 
     return config;
   }
 
+  model.WaterConfig toModelConfig(WaterConfig cfg) =>
+      model.WaterConfig(userId: _userId, targetConsumption: cfg.targetConsumption);
+
+  WaterConfig fromModelConfig(model.WaterConfig config) =>
+      WaterConfig(id: _userId, targetConsumption: config.targetConsumption);
+
   Future<int> getTotal(DateTime day) async {
-    var total = await (select(waterTotals)..where((t) => t.date.equals(day))) //
+    int di = toDay(day);
+
+    var total = await (select(watersPerDay)..where((t) => t.date.equals(di))) //
         .getSingleOrNull();
 
     return total?.quantity ?? 0;
   }
 
   /// start: inclusive
-  /// end: exclusive
+  /// end: inclusive
   Future<Map<DateTime, int>> listTotals(DateTime start, DateTime end) async {
-    var totals =
-        await (select(waterTotals)..where((t) => t.date.isBetweenValues(start, end))).get();
+    int si = toDay(start);
+    int ei = toDay(end);
+
+    var totals = await (select(watersPerDay)..where((t) => t.date.isBetweenValues(si, ei))).get();
 
     var result = <DateTime, int>{};
 
     for (var t in totals) {
-      result[t.date] = t.quantity;
+      result[fromDay(t.date)] = t.quantity;
     }
 
     return result;
   }
 
   Future<List<model.WaterConsumption>> listDetails(DateTime day) async {
-    var result = await (select(waterConsumptions)..where((c) => c.date.equals(day))).get();
+    var result = await (select(waterDetails)..where((c) => c.date.equals(day))).get();
 
-    return result
-        .map(
-            (c) => model.WaterConsumption(_userId, c.date, c.quantity, model.Glass.values[c.glass]))
-        .toList();
+    return result.map(toModelConsumption).toList();
   }
 
   Future<model.WaterConsumption> add(model.WaterConsumption consumption) async {
@@ -124,18 +124,25 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
 
     var total = await getTotal(day);
 
-    var wc = WaterConsumption(
-        date: consumption.date, quantity: consumption.quantity, glass: consumption.glass.index);
-
-    var wt = WaterTotal(date: day, quantity: total + consumption.quantity);
+    var wc = fromModelConsumption(consumption);
+    var wt = WaterPerDay(date: toDay(day), quantity: total + consumption.quantity);
 
     await transaction(() async {
-      await into(waterConsumptions).insert(wc);
-      await into(waterTotals).insertOnConflictUpdate(wt);
+      await into(waterDetails).insert(wc);
+      await into(watersPerDay).insertOnConflictUpdate(wt);
     });
 
     return consumption;
   }
+
+  int toDay(DateTime dt) => dt.year * 10000 + dt.month * 100 + dt.day;
+  DateTime fromDay(int day) => DateTime(day ~/ 10000, day ~/ 100 % 100, day % 100);
+
+  WaterDetail fromModelConsumption(model.WaterConsumption consumption) => WaterDetail(
+      date: consumption.date, quantity: consumption.quantity, glass: consumption.glass.index);
+
+  model.WaterConsumption toModelConsumption(WaterDetail c) =>
+      model.WaterConsumption(_userId, c.date, c.quantity, model.Glass.values[c.glass]);
 }
 
 class WaterConfigs extends Table {
@@ -146,7 +153,7 @@ class WaterConfigs extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-class WaterConsumptions extends Table {
+class WaterDetails extends Table {
   DateTimeColumn get date => dateTime()();
   IntColumn get quantity => integer()();
   IntColumn get glass => integer()();
@@ -155,8 +162,12 @@ class WaterConsumptions extends Table {
   Set<Column> get primaryKey => {date};
 }
 
-class WaterTotals extends Table {
-  DateTimeColumn get date => dateTime()();
+@DataClassName("WaterPerDay")
+class WatersPerDay extends Table {
+  @override
+  String? get tableName => "water_per_day";
+
+  IntColumn get date => integer()();
   IntColumn get quantity => integer()();
 
   @override

@@ -52,20 +52,11 @@ class _CronScheduledTask implements ScheduledTask {
   DateTime _findNextTime(DateTime time) {
     time = time.startOfMinute.addMinutes(1);
 
-    while (!_runAt(time)) {
+    while (!_schedule.shouldRunAt(time)) {
       time = time.addMinutes(1);
     }
 
     return time;
-  }
-
-  bool _runAt(DateTime time) {
-    if (_schedule.seconds?.contains(time.second) == false) return false;
-    if (_schedule.minutes?.contains(time.minute) == false) return false;
-    if (_schedule.hours?.contains(time.hour) == false) return false;
-    if (_schedule.days?.contains(time.day) == false) return false;
-    if (_schedule.months?.contains(time.month) == false) return false;
-    return true;
   }
 
   void _execute() {

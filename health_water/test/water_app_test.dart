@@ -30,7 +30,7 @@ void main() {
   test('Respect start of day - before', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 2, 2);
 
-    time.await(users.setCurrentUserConfig(UserConfig(startingHourOfTheDay: 3)));
+    time.await(users.setCurrentUserConfig(UserConfig(dayChangeHour: 3)));
 
     expect(time.await(app.getDay()), equals(DateTime(2000, 1, 1)));
   }));
@@ -38,7 +38,7 @@ void main() {
   test('Respect start of day - same', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 2, 3);
 
-    time.await(users.setCurrentUserConfig(UserConfig(startingHourOfTheDay: 3)));
+    time.await(users.setCurrentUserConfig(UserConfig(dayChangeHour: 3)));
 
     expect(time.await(app.getDay()), equals(DateTime(2000, 1, 2)));
   }));
@@ -46,7 +46,7 @@ void main() {
   test('Respect start of day - after', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 2, 4);
 
-    time.await(users.setCurrentUserConfig(UserConfig(startingHourOfTheDay: 3)));
+    time.await(users.setCurrentUserConfig(UserConfig(dayChangeHour: 3)));
 
     expect(time.await(app.getDay()), equals(DateTime(2000, 1, 2)));
   }));

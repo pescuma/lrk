@@ -20,6 +20,21 @@ class HealthCommand extends Command {
   }
 }
 
+Future<void> _printTotal(WaterApp app) async {
+  var total = await app.getTotal();
+  var target = await app.getTarget();
+
+  final ifmt = NumberFormat("#,###");
+
+  print("Water consumption today: ${ifmt.format(total)} ml");
+
+  if (total >= target) {
+    print("You've reached your target. Well done!");
+  } else {
+    print("Target: ${ifmt.format(target)} ml");
+  }
+}
+
 class HealthWaterCommand extends Command {
   @override
   final String name = "water";
@@ -45,11 +60,7 @@ class HealthWaterShowCommand extends Command {
   Future<void> run() async {
     var app = di.get<WaterApp>();
 
-    var total = await app.getTotal();
-
-    final ifmt = NumberFormat("#,###");
-
-    print("Water consumption today: ${ifmt.format(total)} ml");
+    await _printTotal(app);
   }
 }
 
@@ -148,11 +159,10 @@ Arguments:
     }
 
     var app = di.get<WaterApp>();
+
     await app.add(quantity, glass);
 
-    var total = await app.getTotal();
-
-    print("Water consumption today: $total ml");
+    await _printTotal(app);
   }
 
   int toIntGreaterThanZero(String x) {

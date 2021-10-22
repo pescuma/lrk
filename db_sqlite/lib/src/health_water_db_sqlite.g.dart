@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'water_db_sqlite.dart';
+part of 'health_water_db_sqlite.dart';
 
 // **************************************************************************
 // MoorGenerator
@@ -179,17 +179,15 @@ class $WaterConfigsTable extends WaterConfigs
   }
 }
 
-class WaterConsumption extends DataClass
-    implements Insertable<WaterConsumption> {
+class WaterDetail extends DataClass implements Insertable<WaterDetail> {
   final DateTime date;
   final int quantity;
   final int glass;
-  WaterConsumption(
+  WaterDetail(
       {required this.date, required this.quantity, required this.glass});
-  factory WaterConsumption.fromData(Map<String, dynamic> data,
-      {String? prefix}) {
+  factory WaterDetail.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    return WaterConsumption(
+    return WaterDetail(
       date: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}date'])!,
       quantity: const IntType()
@@ -207,18 +205,18 @@ class WaterConsumption extends DataClass
     return map;
   }
 
-  WaterConsumptionsCompanion toCompanion(bool nullToAbsent) {
-    return WaterConsumptionsCompanion(
+  WaterDetailsCompanion toCompanion(bool nullToAbsent) {
+    return WaterDetailsCompanion(
       date: Value(date),
       quantity: Value(quantity),
       glass: Value(glass),
     );
   }
 
-  factory WaterConsumption.fromJson(Map<String, dynamic> json,
+  factory WaterDetail.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return WaterConsumption(
+    return WaterDetail(
       date: serializer.fromJson<DateTime>(json['date']),
       quantity: serializer.fromJson<int>(json['quantity']),
       glass: serializer.fromJson<int>(json['glass']),
@@ -234,15 +232,15 @@ class WaterConsumption extends DataClass
     };
   }
 
-  WaterConsumption copyWith({DateTime? date, int? quantity, int? glass}) =>
-      WaterConsumption(
+  WaterDetail copyWith({DateTime? date, int? quantity, int? glass}) =>
+      WaterDetail(
         date: date ?? this.date,
         quantity: quantity ?? this.quantity,
         glass: glass ?? this.glass,
       );
   @override
   String toString() {
-    return (StringBuffer('WaterConsumption(')
+    return (StringBuffer('WaterDetail(')
           ..write('date: $date, ')
           ..write('quantity: $quantity, ')
           ..write('glass: $glass')
@@ -255,29 +253,29 @@ class WaterConsumption extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is WaterConsumption &&
+      (other is WaterDetail &&
           other.date == this.date &&
           other.quantity == this.quantity &&
           other.glass == this.glass);
 }
 
-class WaterConsumptionsCompanion extends UpdateCompanion<WaterConsumption> {
+class WaterDetailsCompanion extends UpdateCompanion<WaterDetail> {
   final Value<DateTime> date;
   final Value<int> quantity;
   final Value<int> glass;
-  const WaterConsumptionsCompanion({
+  const WaterDetailsCompanion({
     this.date = const Value.absent(),
     this.quantity = const Value.absent(),
     this.glass = const Value.absent(),
   });
-  WaterConsumptionsCompanion.insert({
+  WaterDetailsCompanion.insert({
     required DateTime date,
     required int quantity,
     required int glass,
   })  : date = Value(date),
         quantity = Value(quantity),
         glass = Value(glass);
-  static Insertable<WaterConsumption> custom({
+  static Insertable<WaterDetail> custom({
     Expression<DateTime>? date,
     Expression<int>? quantity,
     Expression<int>? glass,
@@ -289,9 +287,9 @@ class WaterConsumptionsCompanion extends UpdateCompanion<WaterConsumption> {
     });
   }
 
-  WaterConsumptionsCompanion copyWith(
+  WaterDetailsCompanion copyWith(
       {Value<DateTime>? date, Value<int>? quantity, Value<int>? glass}) {
-    return WaterConsumptionsCompanion(
+    return WaterDetailsCompanion(
       date: date ?? this.date,
       quantity: quantity ?? this.quantity,
       glass: glass ?? this.glass,
@@ -315,7 +313,7 @@ class WaterConsumptionsCompanion extends UpdateCompanion<WaterConsumption> {
 
   @override
   String toString() {
-    return (StringBuffer('WaterConsumptionsCompanion(')
+    return (StringBuffer('WaterDetailsCompanion(')
           ..write('date: $date, ')
           ..write('quantity: $quantity, ')
           ..write('glass: $glass')
@@ -324,11 +322,11 @@ class WaterConsumptionsCompanion extends UpdateCompanion<WaterConsumption> {
   }
 }
 
-class $WaterConsumptionsTable extends WaterConsumptions
-    with TableInfo<$WaterConsumptionsTable, WaterConsumption> {
+class $WaterDetailsTable extends WaterDetails
+    with TableInfo<$WaterDetailsTable, WaterDetail> {
   final GeneratedDatabase _db;
   final String? _alias;
-  $WaterConsumptionsTable(this._db, [this._alias]);
+  $WaterDetailsTable(this._db, [this._alias]);
   final VerificationMeta _dateMeta = const VerificationMeta('date');
   late final GeneratedColumn<DateTime?> date = GeneratedColumn<DateTime?>(
       'date', aliasedName, false,
@@ -344,11 +342,11 @@ class $WaterConsumptionsTable extends WaterConsumptions
   @override
   List<GeneratedColumn> get $columns => [date, quantity, glass];
   @override
-  String get aliasedName => _alias ?? 'water_consumptions';
+  String get aliasedName => _alias ?? 'water_details';
   @override
-  String get actualTableName => 'water_consumptions';
+  String get actualTableName => 'water_details';
   @override
-  VerificationContext validateIntegrity(Insertable<WaterConsumption> instance,
+  VerificationContext validateIntegrity(Insertable<WaterDetail> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -376,25 +374,25 @@ class $WaterConsumptionsTable extends WaterConsumptions
   @override
   Set<GeneratedColumn> get $primaryKey => {date};
   @override
-  WaterConsumption map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return WaterConsumption.fromData(data,
+  WaterDetail map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return WaterDetail.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
-  $WaterConsumptionsTable createAlias(String alias) {
-    return $WaterConsumptionsTable(_db, alias);
+  $WaterDetailsTable createAlias(String alias) {
+    return $WaterDetailsTable(_db, alias);
   }
 }
 
-class WaterTotal extends DataClass implements Insertable<WaterTotal> {
-  final DateTime date;
+class WaterPerDay extends DataClass implements Insertable<WaterPerDay> {
+  final int date;
   final int quantity;
-  WaterTotal({required this.date, required this.quantity});
-  factory WaterTotal.fromData(Map<String, dynamic> data, {String? prefix}) {
+  WaterPerDay({required this.date, required this.quantity});
+  factory WaterPerDay.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    return WaterTotal(
-      date: const DateTimeType()
+    return WaterPerDay(
+      date: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}date'])!,
       quantity: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}quantity'])!,
@@ -403,23 +401,23 @@ class WaterTotal extends DataClass implements Insertable<WaterTotal> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['date'] = Variable<DateTime>(date);
+    map['date'] = Variable<int>(date);
     map['quantity'] = Variable<int>(quantity);
     return map;
   }
 
-  WaterTotalsCompanion toCompanion(bool nullToAbsent) {
-    return WaterTotalsCompanion(
+  WatersPerDayCompanion toCompanion(bool nullToAbsent) {
+    return WatersPerDayCompanion(
       date: Value(date),
       quantity: Value(quantity),
     );
   }
 
-  factory WaterTotal.fromJson(Map<String, dynamic> json,
+  factory WaterPerDay.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return WaterTotal(
-      date: serializer.fromJson<DateTime>(json['date']),
+    return WaterPerDay(
+      date: serializer.fromJson<int>(json['date']),
       quantity: serializer.fromJson<int>(json['quantity']),
     );
   }
@@ -427,18 +425,18 @@ class WaterTotal extends DataClass implements Insertable<WaterTotal> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'date': serializer.toJson<DateTime>(date),
+      'date': serializer.toJson<int>(date),
       'quantity': serializer.toJson<int>(quantity),
     };
   }
 
-  WaterTotal copyWith({DateTime? date, int? quantity}) => WaterTotal(
+  WaterPerDay copyWith({int? date, int? quantity}) => WaterPerDay(
         date: date ?? this.date,
         quantity: quantity ?? this.quantity,
       );
   @override
   String toString() {
-    return (StringBuffer('WaterTotal(')
+    return (StringBuffer('WaterPerDay(')
           ..write('date: $date, ')
           ..write('quantity: $quantity')
           ..write(')'))
@@ -450,25 +448,24 @@ class WaterTotal extends DataClass implements Insertable<WaterTotal> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is WaterTotal &&
+      (other is WaterPerDay &&
           other.date == this.date &&
           other.quantity == this.quantity);
 }
 
-class WaterTotalsCompanion extends UpdateCompanion<WaterTotal> {
-  final Value<DateTime> date;
+class WatersPerDayCompanion extends UpdateCompanion<WaterPerDay> {
+  final Value<int> date;
   final Value<int> quantity;
-  const WaterTotalsCompanion({
+  const WatersPerDayCompanion({
     this.date = const Value.absent(),
     this.quantity = const Value.absent(),
   });
-  WaterTotalsCompanion.insert({
-    required DateTime date,
+  WatersPerDayCompanion.insert({
+    this.date = const Value.absent(),
     required int quantity,
-  })  : date = Value(date),
-        quantity = Value(quantity);
-  static Insertable<WaterTotal> custom({
-    Expression<DateTime>? date,
+  }) : quantity = Value(quantity);
+  static Insertable<WaterPerDay> custom({
+    Expression<int>? date,
     Expression<int>? quantity,
   }) {
     return RawValuesInsertable({
@@ -477,8 +474,8 @@ class WaterTotalsCompanion extends UpdateCompanion<WaterTotal> {
     });
   }
 
-  WaterTotalsCompanion copyWith({Value<DateTime>? date, Value<int>? quantity}) {
-    return WaterTotalsCompanion(
+  WatersPerDayCompanion copyWith({Value<int>? date, Value<int>? quantity}) {
+    return WatersPerDayCompanion(
       date: date ?? this.date,
       quantity: quantity ?? this.quantity,
     );
@@ -488,7 +485,7 @@ class WaterTotalsCompanion extends UpdateCompanion<WaterTotal> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (date.present) {
-      map['date'] = Variable<DateTime>(date.value);
+      map['date'] = Variable<int>(date.value);
     }
     if (quantity.present) {
       map['quantity'] = Variable<int>(quantity.value);
@@ -498,7 +495,7 @@ class WaterTotalsCompanion extends UpdateCompanion<WaterTotal> {
 
   @override
   String toString() {
-    return (StringBuffer('WaterTotalsCompanion(')
+    return (StringBuffer('WatersPerDayCompanion(')
           ..write('date: $date, ')
           ..write('quantity: $quantity')
           ..write(')'))
@@ -506,15 +503,15 @@ class WaterTotalsCompanion extends UpdateCompanion<WaterTotal> {
   }
 }
 
-class $WaterTotalsTable extends WaterTotals
-    with TableInfo<$WaterTotalsTable, WaterTotal> {
+class $WatersPerDayTable extends WatersPerDay
+    with TableInfo<$WatersPerDayTable, WaterPerDay> {
   final GeneratedDatabase _db;
   final String? _alias;
-  $WaterTotalsTable(this._db, [this._alias]);
+  $WatersPerDayTable(this._db, [this._alias]);
   final VerificationMeta _dateMeta = const VerificationMeta('date');
-  late final GeneratedColumn<DateTime?> date = GeneratedColumn<DateTime?>(
+  late final GeneratedColumn<int?> date = GeneratedColumn<int?>(
       'date', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true);
+      typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _quantityMeta = const VerificationMeta('quantity');
   late final GeneratedColumn<int?> quantity = GeneratedColumn<int?>(
       'quantity', aliasedName, false,
@@ -522,19 +519,17 @@ class $WaterTotalsTable extends WaterTotals
   @override
   List<GeneratedColumn> get $columns => [date, quantity];
   @override
-  String get aliasedName => _alias ?? 'water_totals';
+  String get aliasedName => _alias ?? 'water_per_day';
   @override
-  String get actualTableName => 'water_totals';
+  String get actualTableName => 'water_per_day';
   @override
-  VerificationContext validateIntegrity(Insertable<WaterTotal> instance,
+  VerificationContext validateIntegrity(Insertable<WaterPerDay> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('date')) {
       context.handle(
           _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
-    } else if (isInserting) {
-      context.missing(_dateMeta);
     }
     if (data.containsKey('quantity')) {
       context.handle(_quantityMeta,
@@ -548,14 +543,14 @@ class $WaterTotalsTable extends WaterTotals
   @override
   Set<GeneratedColumn> get $primaryKey => {date};
   @override
-  WaterTotal map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return WaterTotal.fromData(data,
+  WaterPerDay map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return WaterPerDay.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
-  $WaterTotalsTable createAlias(String alias) {
-    return $WaterTotalsTable(_db, alias);
+  $WatersPerDayTable createAlias(String alias) {
+    return $WatersPerDayTable(_db, alias);
   }
 }
 
@@ -563,12 +558,11 @@ abstract class _$_WaterUserSqliteDB extends GeneratedDatabase {
   _$_WaterUserSqliteDB(QueryExecutor e)
       : super(SqlTypeSystem.defaultInstance, e);
   late final $WaterConfigsTable waterConfigs = $WaterConfigsTable(this);
-  late final $WaterConsumptionsTable waterConsumptions =
-      $WaterConsumptionsTable(this);
-  late final $WaterTotalsTable waterTotals = $WaterTotalsTable(this);
+  late final $WaterDetailsTable waterDetails = $WaterDetailsTable(this);
+  late final $WatersPerDayTable watersPerDay = $WatersPerDayTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [waterConfigs, waterConsumptions, waterTotals];
+      [waterConfigs, waterDetails, watersPerDay];
 }

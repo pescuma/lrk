@@ -1,7 +1,7 @@
 class UsersConfig {
   final int currentUser;
 
-  UsersConfig([this.currentUser = 0]);
+  UsersConfig({this.currentUser = 1});
 
   @override
   bool operator ==(Object other) =>
@@ -14,12 +14,15 @@ class UsersConfig {
 
 class UserConfig {
   final int userId;
-  final int startingHourOfTheDay;
+  final int dayChangeHour;
+  final int sleepHour;
+  final int wakeUpHour;
 
-  UserConfig({this.userId = -1, this.startingHourOfTheDay = 0});
+  UserConfig({this.userId = -1, this.dayChangeHour = 0, this.sleepHour = 11, this.wakeUpHour = 7});
 
   UserConfig withUserId(int userId) {
-    return UserConfig(userId: userId, startingHourOfTheDay: startingHourOfTheDay);
+    return UserConfig(
+        userId: userId, dayChangeHour: dayChangeHour, sleepHour: sleepHour, wakeUpHour: wakeUpHour);
   }
 
   @override
@@ -28,18 +31,25 @@ class UserConfig {
       other is UserConfig &&
           runtimeType == other.runtimeType &&
           userId == other.userId &&
-          startingHourOfTheDay == other.startingHourOfTheDay;
+          dayChangeHour == other.dayChangeHour &&
+          wakeUpHour == other.wakeUpHour &&
+          sleepHour == other.sleepHour;
 
   @override
-  int get hashCode => userId.hashCode ^ startingHourOfTheDay.hashCode;
+  int get hashCode =>
+      userId.hashCode ^ dayChangeHour.hashCode ^ wakeUpHour.hashCode ^ sleepHour.hashCode;
 }
 
 class User {
   final int id;
-  final String name;
   final String nickname;
+  final String name;
 
-  User({this.id = -1, this.name = '', this.nickname = ''});
+  User({this.id = -1, this.nickname = '', this.name = ''});
+
+  User withId(int id) {
+    return User(id: id, nickname: nickname, name: name);
+  }
 
   @override
   bool operator ==(Object other) =>

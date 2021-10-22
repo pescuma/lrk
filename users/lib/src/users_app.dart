@@ -30,9 +30,9 @@ class UsersApp extends BaseApp {
       _currentUser = await _db.getUser(config.currentUser);
 
       if (_currentUser == null) {
-        assert(config.currentUser == 0);
+        assert(config.currentUser == 1);
         _currentUser = await addUser(User());
-        assert(_currentUser!.id == 0);
+        assert(_currentUser!.id == 1);
       }
     }
 
@@ -49,7 +49,7 @@ class UsersApp extends BaseApp {
       throw Exception('Unknown user $userId');
     }
 
-    await _db.saveConfig(UsersConfig(user.id));
+    await _db.saveConfig(UsersConfig(currentUser: user.id));
 
     _currentUser = user;
 
