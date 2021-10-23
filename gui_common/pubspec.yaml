@@ -1,0 +1,28 @@
+name: lrk_gui_common
+description: Life Records Keeper GUI commons
+version: 0.0.1
+homepage: https://github.com/pescuma/lrk
+
+environment:
+  sdk: '>=2.14.3 <3.0.0'
+
+
+dependencies:
+  klizma: ^0.2.0
+
+  lrk_common:
+    path: ../common
+
+  lrk_db_sqlite:
+    path: ../db_sqlite
+
+  lrk_users:
+    path: ../users
+
+  lrk_health_water:
+    path: ../health_water
+
+
+dev_dependencies:
+  lints: ^1.0.0
+  test: ^1.16.0

@@ -1,3 +1,3 @@
-import 'package:lrk_common/common.dart';
+import 'package:lrk_gui_common/gui_common.dart';
 
-var di = Container();
+late Container di;

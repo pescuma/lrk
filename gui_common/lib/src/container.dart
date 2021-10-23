@@ -1,8 +1,6 @@
 import 'package:klizma/klizma.dart' as klizma;
 import 'package:lrk_common/common.dart';
 
-import 'disposer.dart';
-
 class Container extends klizma.Container {
   final disposer = Disposer();
 
