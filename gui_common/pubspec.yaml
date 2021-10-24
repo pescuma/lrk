@@ -3,6 +3,7 @@ description: Life Records Keeper GUI commons
 version: 0.0.1
 homepage: https://github.com/pescuma/lrk
 
+
 environment:
   sdk: '>=2.14.3 <3.0.0'
 

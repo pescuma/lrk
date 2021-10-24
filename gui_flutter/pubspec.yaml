@@ -2,9 +2,7 @@ name: lrk_gui_flutter
 description: Life Records Keeper Flutter GUI
 homepage: https://github.com/pescuma/lrk
 
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -31,15 +29,17 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-
-  # Moar icons
   material_design_icons_flutter: 5.0.5955-rc.1
 
-  lrk_health_water:
-    path: ../health_water
+  platform: ^3.0.2
+  dart_app_data: ^1.0.1
+  path_provider: ^2.0.5
+  sqlite3_flutter_libs: ^0.5.1
+
+  lrk_gui_common:
+    path: ../gui_common
+
 
 dev_dependencies:
   flutter_test:

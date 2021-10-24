@@ -7,6 +7,8 @@ environment:
   sdk: '>=2.14.3 <3.0.0'
 
 dependencies:
+  platform: ^3.0.2
+  dart_app_data: ^1.0.1
   args: ^2.3.0
   interact: ^2.1.1
   intl: ^0.17.0
