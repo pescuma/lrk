@@ -8,6 +8,7 @@ export 'package:quiver/collection.dart';
 
 export 'src/base_app.dart';
 export 'src/clock.dart';
+export 'src/day.dart';
 export 'src/day_total.dart';
 export 'src/disposer.dart';
 export 'src/event_emitter.dart';

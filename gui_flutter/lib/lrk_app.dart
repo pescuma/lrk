@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lrk_gui_flutter/health_water_page.dart';
 
 import 'applications_page.dart';
 import 'globals.dart';
+import 'health_water_page.dart';
 
 class LRKApp extends StatefulWidget {
   const LRKApp({Key? key}) : super(key: key);
@@ -23,7 +25,11 @@ class _LRKAppState extends State<LRKApp> with WidgetsBindingObserver {
       ),
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
-      home: const ApplicationsPage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const ApplicationsPage(),
+        '/health/water': (context) => const HealthWaterPage(),
+      },
     );
   }
 
@@ -41,8 +47,6 @@ class _LRKAppState extends State<LRKApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('state = $state');
-
     if (state == AppLifecycleState.detached) {
       di.disposeCreated();
     }

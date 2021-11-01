@@ -81,9 +81,12 @@ void main() {
     expect(
         time.await(app.getGlasses()),
         equals([
-          WaterConsumption(0, time.now, 100, Glass.glass),
-          WaterConsumption(0, time.now, 200, Glass.coffeeCup),
-          WaterConsumption(0, time.now, 300, Glass.mug)
+          WaterConsumption(
+              userId: 0, date: time.now, quantity: 100, glass: Glass.glass),
+          WaterConsumption(
+              userId: 0, date: time.now, quantity: 200, glass: Glass.coffeeCup),
+          WaterConsumption(
+              userId: 0, date: time.now, quantity: 300, glass: Glass.mug)
         ]));
   }));
 
@@ -177,7 +180,8 @@ void main() {
 
     var config = time.await(app.getConfig());
 
-    time.await(app.setConfig(WaterConfig(targetConsumption: config.targetConsumption)));
+    time.await(app
+        .setConfig(WaterConfig(targetConsumption: config.targetConsumption)));
 
     expect(changes, equals(0));
   }));

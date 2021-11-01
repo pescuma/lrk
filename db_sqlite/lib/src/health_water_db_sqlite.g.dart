@@ -180,14 +180,20 @@ class $WaterConfigsTable extends WaterConfigs
 }
 
 class WaterDetail extends DataClass implements Insertable<WaterDetail> {
+  final int id;
   final DateTime date;
   final int quantity;
   final int glass;
   WaterDetail(
-      {required this.date, required this.quantity, required this.glass});
+      {required this.id,
+      required this.date,
+      required this.quantity,
+      required this.glass});
   factory WaterDetail.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return WaterDetail(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       date: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}date'])!,
       quantity: const IntType()
@@ -199,6 +205,7 @@ class WaterDetail extends DataClass implements Insertable<WaterDetail> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
     map['date'] = Variable<DateTime>(date);
     map['quantity'] = Variable<int>(quantity);
     map['glass'] = Variable<int>(glass);
@@ -207,6 +214,7 @@ class WaterDetail extends DataClass implements Insertable<WaterDetail> {
 
   WaterDetailsCompanion toCompanion(bool nullToAbsent) {
     return WaterDetailsCompanion(
+      id: Value(id),
       date: Value(date),
       quantity: Value(quantity),
       glass: Value(glass),
@@ -217,6 +225,7 @@ class WaterDetail extends DataClass implements Insertable<WaterDetail> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return WaterDetail(
+      id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<DateTime>(json['date']),
       quantity: serializer.fromJson<int>(json['quantity']),
       glass: serializer.fromJson<int>(json['glass']),
@@ -226,14 +235,16 @@ class WaterDetail extends DataClass implements Insertable<WaterDetail> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
       'date': serializer.toJson<DateTime>(date),
       'quantity': serializer.toJson<int>(quantity),
       'glass': serializer.toJson<int>(glass),
     };
   }
 
-  WaterDetail copyWith({DateTime? date, int? quantity, int? glass}) =>
+  WaterDetail copyWith({int? id, DateTime? date, int? quantity, int? glass}) =>
       WaterDetail(
+        id: id ?? this.id,
         date: date ?? this.date,
         quantity: quantity ?? this.quantity,
         glass: glass ?? this.glass,
@@ -241,6 +252,7 @@ class WaterDetail extends DataClass implements Insertable<WaterDetail> {
   @override
   String toString() {
     return (StringBuffer('WaterDetail(')
+          ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('quantity: $quantity, ')
           ..write('glass: $glass')
@@ -249,26 +261,30 @@ class WaterDetail extends DataClass implements Insertable<WaterDetail> {
   }
 
   @override
-  int get hashCode => Object.hash(date, quantity, glass);
+  int get hashCode => Object.hash(id, date, quantity, glass);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WaterDetail &&
+          other.id == this.id &&
           other.date == this.date &&
           other.quantity == this.quantity &&
           other.glass == this.glass);
 }
 
 class WaterDetailsCompanion extends UpdateCompanion<WaterDetail> {
+  final Value<int> id;
   final Value<DateTime> date;
   final Value<int> quantity;
   final Value<int> glass;
   const WaterDetailsCompanion({
+    this.id = const Value.absent(),
     this.date = const Value.absent(),
     this.quantity = const Value.absent(),
     this.glass = const Value.absent(),
   });
   WaterDetailsCompanion.insert({
+    this.id = const Value.absent(),
     required DateTime date,
     required int quantity,
     required int glass,
@@ -276,11 +292,13 @@ class WaterDetailsCompanion extends UpdateCompanion<WaterDetail> {
         quantity = Value(quantity),
         glass = Value(glass);
   static Insertable<WaterDetail> custom({
+    Expression<int>? id,
     Expression<DateTime>? date,
     Expression<int>? quantity,
     Expression<int>? glass,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
       if (date != null) 'date': date,
       if (quantity != null) 'quantity': quantity,
       if (glass != null) 'glass': glass,
@@ -288,8 +306,12 @@ class WaterDetailsCompanion extends UpdateCompanion<WaterDetail> {
   }
 
   WaterDetailsCompanion copyWith(
-      {Value<DateTime>? date, Value<int>? quantity, Value<int>? glass}) {
+      {Value<int>? id,
+      Value<DateTime>? date,
+      Value<int>? quantity,
+      Value<int>? glass}) {
     return WaterDetailsCompanion(
+      id: id ?? this.id,
       date: date ?? this.date,
       quantity: quantity ?? this.quantity,
       glass: glass ?? this.glass,
@@ -299,6 +321,9 @@ class WaterDetailsCompanion extends UpdateCompanion<WaterDetail> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
@@ -314,6 +339,7 @@ class WaterDetailsCompanion extends UpdateCompanion<WaterDetail> {
   @override
   String toString() {
     return (StringBuffer('WaterDetailsCompanion(')
+          ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('quantity: $quantity, ')
           ..write('glass: $glass')
@@ -327,6 +353,12 @@ class $WaterDetailsTable extends WaterDetails
   final GeneratedDatabase _db;
   final String? _alias;
   $WaterDetailsTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _dateMeta = const VerificationMeta('date');
   late final GeneratedColumn<DateTime?> date = GeneratedColumn<DateTime?>(
       'date', aliasedName, false,
@@ -340,7 +372,7 @@ class $WaterDetailsTable extends WaterDetails
       'glass', aliasedName, false,
       typeName: 'INTEGER', requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [date, quantity, glass];
+  List<GeneratedColumn> get $columns => [id, date, quantity, glass];
   @override
   String get aliasedName => _alias ?? 'water_details';
   @override
@@ -350,6 +382,9 @@ class $WaterDetailsTable extends WaterDetails
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
     if (data.containsKey('date')) {
       context.handle(
           _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
@@ -372,7 +407,7 @@ class $WaterDetailsTable extends WaterDetails
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {date};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   WaterDetail map(Map<String, dynamic> data, {String? tablePrefix}) {
     return WaterDetail.fromData(data,

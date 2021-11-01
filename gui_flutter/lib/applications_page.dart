@@ -11,6 +11,7 @@ class ApplicationsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         leading: const IconButton(
           icon: Icon(Icons.menu),
           tooltip: 'Navigation menu',
@@ -27,13 +28,80 @@ class ApplicationsPage extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.all(8),
-        children: const <Widget>[
-          Padding(
-            padding: EdgeInsets.all(8),
-            child: Text('Health'),
-          ),
-          HealthWaterRow(),
+        children: <Widget>[
+          HeaderRow('Health'),
+          const HealthWaterRow(),
         ],
+      ),
+    );
+  }
+}
+
+class HeaderRow extends StatelessWidget {
+  final String name;
+
+  HeaderRow(this.name, {Key? key}) : super(key: key ?? Key(name));
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Text(name),
+    );
+  }
+}
+
+class ApplicationRow extends StatelessWidget {
+  final IconData? icon;
+  final String name;
+  final Color? color;
+
+  final String? value;
+  final Color? valueColor;
+
+  final String routeName;
+
+  ApplicationRow(
+      {this.icon,
+      required this.name,
+      this.color,
+      this.value,
+      this.valueColor,
+      required this.routeName,
+      Key? key})
+      : super(key: key ?? Key(name));
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushNamed(routeName);
+      },
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: <Widget>[
+              if (icon != null) Icon(icon, color: color, size: 20),
+              if (icon != null) const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  name,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: color),
+                ),
+              ),
+              if (value != null) const SizedBox(width: 4),
+              if (value != null)
+                Text(
+                  value!,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: valueColor ?? color),
+                ),
+              Icon(Icons.chevron_right, color: color, size: 24),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -47,7 +115,7 @@ class HealthWaterRow extends StatefulWidget {
 }
 
 class _HealthWaterRowState extends State<HealthWaterRow> {
-  late WaterApp app;
+  late final WaterApp app;
 
   _HealthWaterRowState() {
     app = di.get<WaterApp>();
@@ -63,61 +131,31 @@ class _HealthWaterRowState extends State<HealthWaterRow> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Row(
-        children: <Widget>[
-          const IconButton(
-            icon: Icon(
-              MdiIcons.cup,
-              color: Colors.blueAccent,
-            ),
-            iconSize: 20,
-            padding: EdgeInsets.only(top: 8, bottom: 8, left: 0, right: 0),
-            onPressed: null,
-          ),
-          const Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8, left: 0, right: 4),
-              child: Text(
-                'Water consumption',
-                style: TextStyle(color: Colors.blueAccent),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-          FutureBuilder<int>(
-            future: _getTotal(),
-            builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-              if (snapshot.hasData) {
-                final ifmt = NumberFormat("#,###");
-                return Text(
-                  '${ifmt.format(snapshot.data)} ml',
-                  style: const TextStyle(color: Colors.blueAccent),
-                  overflow: TextOverflow.ellipsis,
-                );
-              } else if (snapshot.hasError) {
-                return const Text(
-                  '---',
-                  style: TextStyle(color: Colors.red),
-                  overflow: TextOverflow.ellipsis,
-                );
-              } else {
-                return const Text(
-                  '---',
-                  style: TextStyle(color: Colors.black26),
-                  overflow: TextOverflow.ellipsis,
-                );
-              }
-            },
-          ),
-          const IconButton(
-            icon: Icon(Icons.chevron_right),
-            padding: EdgeInsets.only(top: 8, bottom: 8, left: 0, right: 0),
-            tooltip: 'Open water consumption app',
-            onPressed: null,
-          )
-        ],
-      ),
+    return FutureBuilder<int>(
+      future: _getTotal(),
+      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+        String value;
+        Color? valueColor;
+        if (snapshot.hasData) {
+          final ifmt = NumberFormat("#,###");
+          value = '${ifmt.format(snapshot.data)} ml';
+        } else if (snapshot.hasError) {
+          value = '---';
+          valueColor = Colors.red;
+        } else {
+          value = '---';
+          valueColor = Colors.black26;
+        }
+
+        return ApplicationRow(
+          color: Colors.blueAccent,
+          icon: MdiIcons.cup,
+          name: 'Water consumption',
+          value: value,
+          valueColor: valueColor,
+          routeName: '/health/water',
+        );
+      },
     );
   }
 }

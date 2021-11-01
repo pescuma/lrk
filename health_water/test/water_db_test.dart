@@ -19,14 +19,17 @@ void main() {
   }));
 
   test('Add one', prepare((db, time) {
-    db.add(WaterConsumption(0, datetime, 250, Glass.glass));
+    db.add(WaterConsumption(
+        userId: 0, date: datetime, quantity: 250, glass: Glass.glass));
 
     expect(time.await(db.getTotal(0, date)), equals(250));
   }));
 
   test('Add two', prepare((db, time) {
-    time.await(db.add(WaterConsumption(0, datetime, 250, Glass.glass)));
-    time.await(db.add(WaterConsumption(0, datetime, 350, Glass.glass)));
+    time.await(db.add(WaterConsumption(
+        userId: 0, date: datetime, quantity: 250, glass: Glass.glass)));
+    time.await(db.add(WaterConsumption(
+        userId: 0, date: datetime, quantity: 350, glass: Glass.glass)));
 
     expect(time.await(db.getTotal(0, date)), equals(600));
   }));
@@ -36,12 +39,21 @@ void main() {
     var month = 1;
 
     for (int i = 1; i <= 4; i++) {
-      time.await(db.add(WaterConsumption(0, DateTime(year, month, i, 1, 1), 250, Glass.glass)));
-      time.await(db.add(WaterConsumption(0, DateTime(year, month, i, 2, 1), 350, Glass.glass)));
+      time.await(db.add(WaterConsumption(
+          userId: 0,
+          date: DateTime(year, month, i, 1, 1),
+          quantity: 250,
+          glass: Glass.glass)));
+      time.await(db.add(WaterConsumption(
+          userId: 0,
+          date: DateTime(year, month, i, 2, 1),
+          quantity: 350,
+          glass: Glass.glass)));
     }
 
     expect(
-        time.await(db.listTotals(0, DateTime(year, month, 2), DateTime(year, month, 4))),
+        time.await(db.listTotals(
+            0, DateTime(year, month, 2), DateTime(year, month, 4))),
         equals({
           DateTime(year, month, 2): 600, //
           DateTime(year, month, 3): 600

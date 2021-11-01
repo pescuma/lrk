@@ -32,7 +32,8 @@ class WaterSqliteDB implements model.WaterDB {
   /// start: inclusive
   /// end: inclusive
   @override
-  Future<Map<DateTime, int>> listTotals(int userId, DateTime start, DateTime end) {
+  Future<Map<DateTime, int>> listTotals(
+      int userId, DateTime start, DateTime end) {
     return _getDB(userId).listTotals(start, end);
   }
 
@@ -81,8 +82,8 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
     return config;
   }
 
-  model.WaterConfig toModelConfig(WaterConfig cfg) =>
-      model.WaterConfig(userId: _userId, targetConsumption: cfg.targetConsumption);
+  model.WaterConfig toModelConfig(WaterConfig cfg) => model.WaterConfig(
+      userId: _userId, targetConsumption: cfg.targetConsumption);
 
   WaterConfig fromModelConfig(model.WaterConfig config) =>
       WaterConfig(id: _userId, targetConsumption: config.targetConsumption);
@@ -102,7 +103,9 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
     int si = toDay(start);
     int ei = toDay(end);
 
-    var totals = await (select(watersPerDay)..where((t) => t.date.isBetweenValues(si, ei))).get();
+    var totals = await (select(watersPerDay)
+          ..where((t) => t.date.isBetweenValues(si, ei)))
+        .get();
 
     var result = <DateTime, int>{};
 
@@ -114,7 +117,12 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
   }
 
   Future<List<model.WaterConsumption>> listDetails(DateTime day) async {
-    var result = await (select(waterDetails)..where((c) => c.date.equals(day))).get();
+    var start = day.startOfDay;
+    var end = day.endOfDay;
+
+    var result = await (select(waterDetails)
+          ..where((c) => c.date.isBetweenValues(start, end)))
+        .get();
 
     return result.map(toModelConsumption).toList();
   }
@@ -124,29 +132,47 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
 
     var total = await getTotal(day);
 
-    var wc = fromModelConsumption(consumption);
-    var wt = WaterPerDay(date: toDay(day), quantity: total + consumption.quantity);
+    var wc = WaterDetailsCompanion(
+        date: Value(consumption.date),
+        quantity: Value(consumption.quantity),
+        glass: Value(consumption.glass.index));
+    var wt =
+        WaterPerDay(date: toDay(day), quantity: total + consumption.quantity);
+
+    int? id;
 
     await transaction(() async {
-      await into(waterDetails).insert(wc);
+      id = await into(waterDetails).insert(wc);
       await into(watersPerDay).insertOnConflictUpdate(wt);
     });
 
-    return consumption;
+    return consumption.withId(id!);
   }
 
   int toDay(DateTime dt) => dt.year * 10000 + dt.month * 100 + dt.day;
-  DateTime fromDay(int day) => DateTime(day ~/ 10000, day ~/ 100 % 100, day % 100);
 
-  WaterDetail fromModelConsumption(model.WaterConsumption consumption) => WaterDetail(
-      date: consumption.date, quantity: consumption.quantity, glass: consumption.glass.index);
+  DateTime fromDay(int day) =>
+      DateTime(day ~/ 10000, day ~/ 100 % 100, day % 100);
+
+  WaterDetail fromModelConsumption(model.WaterConsumption consumption) =>
+      WaterDetail(
+          id: consumption.id,
+          date: consumption.date,
+          quantity: consumption.quantity,
+          glass: consumption.glass.index);
 
   model.WaterConsumption toModelConsumption(WaterDetail c) =>
-      model.WaterConsumption(_userId, c.date, c.quantity, model.Glass.values[c.glass]);
+      model.WaterConsumption(
+          userId: _userId,
+          id: c.id,
+          date: c.date,
+          quantity: c.quantity,
+          glass: model.Glass.values[c.glass]);
 }
 
 class WaterConfigs extends Table {
   IntColumn get id => integer()();
+
   IntColumn get targetConsumption => integer()();
 
   @override
@@ -154,12 +180,13 @@ class WaterConfigs extends Table {
 }
 
 class WaterDetails extends Table {
-  DateTimeColumn get date => dateTime()();
-  IntColumn get quantity => integer()();
-  IntColumn get glass => integer()();
+  IntColumn get id => integer().autoIncrement()();
 
-  @override
-  Set<Column> get primaryKey => {date};
+  DateTimeColumn get date => dateTime()();
+
+  IntColumn get quantity => integer()();
+
+  IntColumn get glass => integer()();
 }
 
 @DataClassName("WaterPerDay")
@@ -168,6 +195,7 @@ class WatersPerDay extends Table {
   String? get tableName => "water_per_day";
 
   IntColumn get date => integer()();
+
   IntColumn get quantity => integer()();
 
   @override

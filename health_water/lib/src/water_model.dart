@@ -31,6 +31,7 @@ class WaterConfig {
 
 class WaterConsumption {
   final int userId;
+  final int id;
   final DateTime date;
 
   /// ml
@@ -38,11 +39,21 @@ class WaterConsumption {
 
   final Glass glass;
 
-  const WaterConsumption(this.userId, this.date, this.quantity, this.glass);
+  const WaterConsumption(
+      {required this.userId,
+      this.id = -1,
+      required this.date,
+      required this.quantity,
+      this.glass = Glass.glass});
+
+  WaterConsumption withId(int id) {
+    return WaterConsumption(
+        userId: userId, id: id, date: date, quantity: quantity, glass: glass);
+  }
 
   @override
   String toString() {
-    return 'WaterConsumption{$userId, $date, ${quantity}ml, $glass}';
+    return 'WaterConsumption{$userId, $id, $date, ${quantity}ml, $glass}';
   }
 
   @override
@@ -50,16 +61,32 @@ class WaterConsumption {
       identical(this, other) ||
       other is WaterConsumption &&
           runtimeType == other.runtimeType &&
+          id == other.id &&
           userId == other.userId &&
           date == other.date &&
           quantity == other.quantity &&
           glass == other.glass;
 
   @override
-  int get hashCode => userId.hashCode ^ date.hashCode ^ quantity.hashCode ^ glass.hashCode;
+  int get hashCode =>
+      id.hashCode ^
+      userId.hashCode ^
+      date.hashCode ^
+      quantity.hashCode ^
+      glass.hashCode;
 }
 
-enum Glass { glass, coffeeCup, cocktailGlass, wineGlass, flute, mug, sodaBottle, wineBottle, tonic }
+enum Glass {
+  glass,
+  coffeeCup,
+  cocktailGlass,
+  wineGlass,
+  flute,
+  mug,
+  sodaBottle,
+  wineBottle,
+  tonic
+}
 
 var glassNames = BiMap<Glass, String>()
   ..putIfAbsent(Glass.glass, () => 'glass')

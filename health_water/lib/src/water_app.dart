@@ -11,6 +11,8 @@ class WaterApp extends BaseApp {
   UserConfig? _userConfig;
   WaterConfig? _config;
   DateTime? _day;
+  DateTime? _dayStart;
+  DateTime? _dayEnd;
   int? _total;
   ScheduledTask? _dayChangeTask;
   List<WaterConsumption>? _glasses;
@@ -115,11 +117,12 @@ class WaterApp extends BaseApp {
 
     var time = _clock.now();
     if (time.startOfDay != day) {
-      time = DateTime(day.year, day.month, day.day, time.hour, time.minute, time.second,
-          time.millisecond, time.microsecond);
+      time = DateTime(day.year, day.month, day.day, time.hour, time.minute,
+          time.second, time.millisecond, time.microsecond);
     }
 
-    var consumption = WaterConsumption(user.userId, time, quantity, glass);
+    var consumption = WaterConsumption(
+        userId: user.userId, date: time, quantity: quantity, glass: glass);
 
     consumption = await _db.add(consumption);
 
@@ -130,7 +133,6 @@ class WaterApp extends BaseApp {
     }
 
     await events.emit('change', 'glasses');
-    await events.emit('change', 'total');
   }
 
   /// start: inclusive
@@ -201,3 +203,5 @@ class WaterApp extends BaseApp {
     super.dispose();
   }
 }
+
+class DayConfig {}

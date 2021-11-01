@@ -36,6 +36,7 @@ dependencies:
   dart_app_data: ^1.0.1
   path_provider: ^2.0.5
   sqlite3_flutter_libs: ^0.5.1
+  permission_handler: ^8.2.5
 
   lrk_gui_common:
     path: ../gui_common
