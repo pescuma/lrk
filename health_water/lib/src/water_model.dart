@@ -29,6 +29,14 @@ class WaterConfig {
   int get hashCode => userId.hashCode ^ targetConsumption.hashCode;
 }
 
+class WaterDayTotal {
+  final int userId;
+  final Day day;
+  final int total;
+
+  WaterDayTotal({required this.userId, required this.day, required this.total});
+}
+
 class WaterConsumption {
   final int userId;
   final int id;

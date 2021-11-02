@@ -1,3 +1,5 @@
+import 'package:lrk_common/common.dart';
+
 class UsersConfig {
   final int currentUser;
 
@@ -6,7 +8,9 @@ class UsersConfig {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is UsersConfig && runtimeType == other.runtimeType && currentUser == other.currentUser;
+      other is UsersConfig &&
+          runtimeType == other.runtimeType &&
+          currentUser == other.currentUser;
 
   @override
   int get hashCode => currentUser.hashCode;
@@ -18,11 +22,45 @@ class UserConfig {
   final int sleepHour;
   final int wakeUpHour;
 
-  UserConfig({this.userId = -1, this.dayChangeHour = 0, this.sleepHour = 11, this.wakeUpHour = 7});
+  UserConfig(
+      {this.userId = -1,
+      this.dayChangeHour = 0,
+      this.sleepHour = 11,
+      this.wakeUpHour = 7});
 
   UserConfig withUserId(int userId) {
     return UserConfig(
-        userId: userId, dayChangeHour: dayChangeHour, sleepHour: sleepHour, wakeUpHour: wakeUpHour);
+        userId: userId,
+        dayChangeHour: dayChangeHour,
+        sleepHour: sleepHour,
+        wakeUpHour: wakeUpHour);
+  }
+
+  DayConfig getDayConfig(Day day) {
+    var start = day.toDateTime().addHours(dayChangeHour, true);
+    var wakeUp = day.toDateTime().addHours(wakeUpHour, true);
+    var sleep = day.toDateTime().addHours(sleepHour, true);
+    if (sleepHour >= 0) {
+      sleep = sleep.addDays(1, true);
+    }
+    var end = start.addDays(1, true).addMicroseconds(-1);
+
+    return DayConfig(
+        day: day, start: start, wakeUp: wakeUp, sleep: sleep, end: end);
+  }
+
+  Day getToday(Clock clock) {
+    var now = clock.now();
+
+    if (now.hour < dayChangeHour) {
+      now = now.addDays(-1, true);
+    }
+
+    return Day.fromDateTime(now);
+  }
+
+  DayConfig getTodayConfig(Clock clock) {
+    return getDayConfig(getToday(clock));
   }
 
   @override
@@ -37,7 +75,25 @@ class UserConfig {
 
   @override
   int get hashCode =>
-      userId.hashCode ^ dayChangeHour.hashCode ^ wakeUpHour.hashCode ^ sleepHour.hashCode;
+      userId.hashCode ^
+      dayChangeHour.hashCode ^
+      wakeUpHour.hashCode ^
+      sleepHour.hashCode;
+}
+
+class DayConfig {
+  final Day day;
+  final DateTime start;
+  final DateTime wakeUp;
+  final DateTime sleep;
+  final DateTime end;
+
+  DayConfig(
+      {required this.day,
+      required this.start,
+      required this.wakeUp,
+      required this.sleep,
+      required this.end});
 }
 
 class User {

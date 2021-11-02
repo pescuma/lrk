@@ -25,26 +25,27 @@ class WaterSqliteDB implements model.WaterDB {
   }
 
   @override
-  Future<int> getTotal(int userId, DateTime day) {
+  Future<model.WaterDayTotal> getTotal(int userId, Day day) {
     return _getDB(userId).getTotal(day);
   }
 
   /// start: inclusive
   /// end: inclusive
   @override
-  Future<Map<DateTime, int>> listTotals(
-      int userId, DateTime start, DateTime end) {
+  Future<List<model.WaterDayTotal>> listTotals(int userId, Day start, Day end) {
     return _getDB(userId).listTotals(start, end);
   }
 
   @override
-  Future<List<model.WaterConsumption>> listDetails(int userId, DateTime day) {
-    return _getDB(userId).listDetails(day);
+  Future<List<model.WaterConsumption>> listDetails(
+      int userId, DateTime start, DateTime end) {
+    return _getDB(userId).listDetails(start, end);
   }
 
   @override
-  Future<model.WaterConsumption> add(model.WaterConsumption consumption) {
-    return _getDB(consumption.userId).add(consumption);
+  Future<model.WaterConsumption> add(
+      model.WaterConsumption consumption, model.WaterDayTotal total) {
+    return _getDB(consumption.userId).add(consumption, total);
   }
 
   @override
@@ -88,38 +89,32 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
   WaterConfig fromModelConfig(model.WaterConfig config) =>
       WaterConfig(id: _userId, targetConsumption: config.targetConsumption);
 
-  Future<int> getTotal(DateTime day) async {
-    int di = toDay(day);
+  Future<model.WaterDayTotal> getTotal(Day day) async {
+    int di = day.toInt();
 
-    var total = await (select(watersPerDay)..where((t) => t.date.equals(di))) //
+    var total = await (select(watersPerDay)..where((t) => t.day.equals(di))) //
         .getSingleOrNull();
 
-    return total?.quantity ?? 0;
+    return toModelTotal(total ?? WaterPerDay(day: day.toInt(), total: 0));
   }
 
   /// start: inclusive
   /// end: inclusive
-  Future<Map<DateTime, int>> listTotals(DateTime start, DateTime end) async {
-    int si = toDay(start);
-    int ei = toDay(end);
+  Future<List<model.WaterDayTotal>> listTotals(Day start, Day end) async {
+    int si = start.toInt();
+    int ei = end.toInt();
 
     var totals = await (select(watersPerDay)
-          ..where((t) => t.date.isBetweenValues(si, ei)))
+          ..where((t) => t.day.isBetweenValues(si, ei)))
         .get();
 
-    var result = <DateTime, int>{};
-
-    for (var t in totals) {
-      result[fromDay(t.date)] = t.quantity;
-    }
-
-    return result;
+    return totals.map(toModelTotal).toList();
   }
 
-  Future<List<model.WaterConsumption>> listDetails(DateTime day) async {
-    var start = day.startOfDay;
-    var end = day.endOfDay;
-
+  /// start: inclusive
+  /// end: inclusive
+  Future<List<model.WaterConsumption>> listDetails(
+      DateTime start, DateTime end) async {
     var result = await (select(waterDetails)
           ..where((c) => c.date.isBetweenValues(start, end)))
         .get();
@@ -127,17 +122,13 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
     return result.map(toModelConsumption).toList();
   }
 
-  Future<model.WaterConsumption> add(model.WaterConsumption consumption) async {
-    var day = consumption.date.startOfDay;
-
-    var total = await getTotal(day);
-
+  Future<model.WaterConsumption> add(
+      model.WaterConsumption consumption, model.WaterDayTotal total) async {
     var wc = WaterDetailsCompanion(
         date: Value(consumption.date),
         quantity: Value(consumption.quantity),
         glass: Value(consumption.glass.index));
-    var wt =
-        WaterPerDay(date: toDay(day), quantity: total + consumption.quantity);
+    var wt = fromModelTotal(total);
 
     int? id;
 
@@ -148,11 +139,6 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
 
     return consumption.withId(id!);
   }
-
-  int toDay(DateTime dt) => dt.year * 10000 + dt.month * 100 + dt.day;
-
-  DateTime fromDay(int day) =>
-      DateTime(day ~/ 10000, day ~/ 100 % 100, day % 100);
 
   WaterDetail fromModelConsumption(model.WaterConsumption consumption) =>
       WaterDetail(
@@ -168,6 +154,12 @@ class _WaterUserSqliteDB extends _$_WaterUserSqliteDB {
           date: c.date,
           quantity: c.quantity,
           glass: model.Glass.values[c.glass]);
+
+  WaterPerDay fromModelTotal(model.WaterDayTotal total) =>
+      WaterPerDay(day: total.day.toInt(), total: total.total);
+
+  model.WaterDayTotal toModelTotal(WaterPerDay c) => model.WaterDayTotal(
+      userId: _userId, day: Day.fromInt(c.day), total: c.total);
 }
 
 class WaterConfigs extends Table {
@@ -194,10 +186,10 @@ class WatersPerDay extends Table {
   @override
   String? get tableName => "water_per_day";
 
-  IntColumn get date => integer()();
+  IntColumn get day => integer()();
 
-  IntColumn get quantity => integer()();
+  IntColumn get total => integer()();
 
   @override
-  Set<Column> get primaryKey => {date};
+  Set<Column> get primaryKey => {day};
 }

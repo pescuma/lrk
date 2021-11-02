@@ -24,7 +24,7 @@ void main() {
   test('Today', prepare((app, users, time) {
     time.now = DateTime(2000, 1, 2, 3, 4, 5);
 
-    expect(time.await(app.getDay()), equals(time.now.startOfDay));
+    expect(time.await(app.getDay()), equals(Day.fromDateTime(time.now)));
   }));
 
   test('Respect start of day - before', prepare((app, users, time) {
@@ -32,7 +32,7 @@ void main() {
 
     time.await(users.setCurrentUserConfig(UserConfig(dayChangeHour: 3)));
 
-    expect(time.await(app.getDay()), equals(DateTime(2000, 1, 1)));
+    expect(time.await(app.getDay()), equals(Day(2000, 1, 1)));
   }));
 
   test('Respect start of day - same', prepare((app, users, time) {
@@ -40,7 +40,7 @@ void main() {
 
     time.await(users.setCurrentUserConfig(UserConfig(dayChangeHour: 3)));
 
-    expect(time.await(app.getDay()), equals(DateTime(2000, 1, 2)));
+    expect(time.await(app.getDay()), equals(Day(2000, 1, 2)));
   }));
 
   test('Respect start of day - after', prepare((app, users, time) {
@@ -48,7 +48,7 @@ void main() {
 
     time.await(users.setCurrentUserConfig(UserConfig(dayChangeHour: 3)));
 
-    expect(time.await(app.getDay()), equals(DateTime(2000, 1, 2)));
+    expect(time.await(app.getDay()), equals(Day(2000, 1, 2)));
   }));
 
   test('Not reached', prepare((app, users, time) {
@@ -82,11 +82,11 @@ void main() {
         time.await(app.getGlasses()),
         equals([
           WaterConsumption(
-              userId: 0, date: time.now, quantity: 100, glass: Glass.glass),
+              userId: 1, date: time.now, quantity: 100, glass: Glass.glass),
           WaterConsumption(
-              userId: 0, date: time.now, quantity: 200, glass: Glass.coffeeCup),
+              userId: 1, date: time.now, quantity: 200, glass: Glass.coffeeCup),
           WaterConsumption(
-              userId: 0, date: time.now, quantity: 300, glass: Glass.mug)
+              userId: 1, date: time.now, quantity: 300, glass: Glass.mug)
         ]));
   }));
 
@@ -99,13 +99,13 @@ void main() {
 
     var day2 = time.await(app.getDay());
 
-    expect(day1, equals(DateTime(2000, 1, 1)));
-    expect(day2, equals(DateTime(2000, 1, 2)));
+    expect(day1, equals(Day(2000, 1, 1)));
+    expect(day2, equals(Day(2000, 1, 2)));
   }));
 
   test('Update day only if current', prepare((app, users, time) {
     time.now = DateTime(2001, 1, 1);
-    var past = DateTime(2000, 1, 1);
+    var past = Day(2000, 1, 1);
 
     // Init timers for today
     time.await(app.getDay());
@@ -123,7 +123,7 @@ void main() {
     var changes = 0;
     app.events.on('change', () => changes++);
 
-    time.await(app.setDay(DateTime(2000, 1, 2)));
+    time.await(app.setDay(Day(2000, 1, 2)));
 
     expect(changes, equals(1));
   }));

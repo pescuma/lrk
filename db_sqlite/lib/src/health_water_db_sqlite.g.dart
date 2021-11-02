@@ -421,30 +421,30 @@ class $WaterDetailsTable extends WaterDetails
 }
 
 class WaterPerDay extends DataClass implements Insertable<WaterPerDay> {
-  final int date;
-  final int quantity;
-  WaterPerDay({required this.date, required this.quantity});
+  final int day;
+  final int total;
+  WaterPerDay({required this.day, required this.total});
   factory WaterPerDay.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return WaterPerDay(
-      date: const IntType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}date'])!,
-      quantity: const IntType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}quantity'])!,
+      day: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}day'])!,
+      total: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}total'])!,
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['date'] = Variable<int>(date);
-    map['quantity'] = Variable<int>(quantity);
+    map['day'] = Variable<int>(day);
+    map['total'] = Variable<int>(total);
     return map;
   }
 
   WatersPerDayCompanion toCompanion(bool nullToAbsent) {
     return WatersPerDayCompanion(
-      date: Value(date),
-      quantity: Value(quantity),
+      day: Value(day),
+      total: Value(total),
     );
   }
 
@@ -452,78 +452,78 @@ class WaterPerDay extends DataClass implements Insertable<WaterPerDay> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return WaterPerDay(
-      date: serializer.fromJson<int>(json['date']),
-      quantity: serializer.fromJson<int>(json['quantity']),
+      day: serializer.fromJson<int>(json['day']),
+      total: serializer.fromJson<int>(json['total']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'date': serializer.toJson<int>(date),
-      'quantity': serializer.toJson<int>(quantity),
+      'day': serializer.toJson<int>(day),
+      'total': serializer.toJson<int>(total),
     };
   }
 
-  WaterPerDay copyWith({int? date, int? quantity}) => WaterPerDay(
-        date: date ?? this.date,
-        quantity: quantity ?? this.quantity,
+  WaterPerDay copyWith({int? day, int? total}) => WaterPerDay(
+        day: day ?? this.day,
+        total: total ?? this.total,
       );
   @override
   String toString() {
     return (StringBuffer('WaterPerDay(')
-          ..write('date: $date, ')
-          ..write('quantity: $quantity')
+          ..write('day: $day, ')
+          ..write('total: $total')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(date, quantity);
+  int get hashCode => Object.hash(day, total);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WaterPerDay &&
-          other.date == this.date &&
-          other.quantity == this.quantity);
+          other.day == this.day &&
+          other.total == this.total);
 }
 
 class WatersPerDayCompanion extends UpdateCompanion<WaterPerDay> {
-  final Value<int> date;
-  final Value<int> quantity;
+  final Value<int> day;
+  final Value<int> total;
   const WatersPerDayCompanion({
-    this.date = const Value.absent(),
-    this.quantity = const Value.absent(),
+    this.day = const Value.absent(),
+    this.total = const Value.absent(),
   });
   WatersPerDayCompanion.insert({
-    this.date = const Value.absent(),
-    required int quantity,
-  }) : quantity = Value(quantity);
+    this.day = const Value.absent(),
+    required int total,
+  }) : total = Value(total);
   static Insertable<WaterPerDay> custom({
-    Expression<int>? date,
-    Expression<int>? quantity,
+    Expression<int>? day,
+    Expression<int>? total,
   }) {
     return RawValuesInsertable({
-      if (date != null) 'date': date,
-      if (quantity != null) 'quantity': quantity,
+      if (day != null) 'day': day,
+      if (total != null) 'total': total,
     });
   }
 
-  WatersPerDayCompanion copyWith({Value<int>? date, Value<int>? quantity}) {
+  WatersPerDayCompanion copyWith({Value<int>? day, Value<int>? total}) {
     return WatersPerDayCompanion(
-      date: date ?? this.date,
-      quantity: quantity ?? this.quantity,
+      day: day ?? this.day,
+      total: total ?? this.total,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (date.present) {
-      map['date'] = Variable<int>(date.value);
+    if (day.present) {
+      map['day'] = Variable<int>(day.value);
     }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
+    if (total.present) {
+      map['total'] = Variable<int>(total.value);
     }
     return map;
   }
@@ -531,8 +531,8 @@ class WatersPerDayCompanion extends UpdateCompanion<WaterPerDay> {
   @override
   String toString() {
     return (StringBuffer('WatersPerDayCompanion(')
-          ..write('date: $date, ')
-          ..write('quantity: $quantity')
+          ..write('day: $day, ')
+          ..write('total: $total')
           ..write(')'))
         .toString();
   }
@@ -543,16 +543,16 @@ class $WatersPerDayTable extends WatersPerDay
   final GeneratedDatabase _db;
   final String? _alias;
   $WatersPerDayTable(this._db, [this._alias]);
-  final VerificationMeta _dateMeta = const VerificationMeta('date');
-  late final GeneratedColumn<int?> date = GeneratedColumn<int?>(
-      'date', aliasedName, false,
+  final VerificationMeta _dayMeta = const VerificationMeta('day');
+  late final GeneratedColumn<int?> day = GeneratedColumn<int?>(
+      'day', aliasedName, false,
       typeName: 'INTEGER', requiredDuringInsert: false);
-  final VerificationMeta _quantityMeta = const VerificationMeta('quantity');
-  late final GeneratedColumn<int?> quantity = GeneratedColumn<int?>(
-      'quantity', aliasedName, false,
+  final VerificationMeta _totalMeta = const VerificationMeta('total');
+  late final GeneratedColumn<int?> total = GeneratedColumn<int?>(
+      'total', aliasedName, false,
       typeName: 'INTEGER', requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [date, quantity];
+  List<GeneratedColumn> get $columns => [day, total];
   @override
   String get aliasedName => _alias ?? 'water_per_day';
   @override
@@ -562,21 +562,21 @@ class $WatersPerDayTable extends WatersPerDay
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('date')) {
+    if (data.containsKey('day')) {
       context.handle(
-          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+          _dayMeta, day.isAcceptableOrUnknown(data['day']!, _dayMeta));
     }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    if (data.containsKey('total')) {
+      context.handle(
+          _totalMeta, total.isAcceptableOrUnknown(data['total']!, _totalMeta));
     } else if (isInserting) {
-      context.missing(_quantityMeta);
+      context.missing(_totalMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {date};
+  Set<GeneratedColumn> get $primaryKey => {day};
   @override
   WaterPerDay map(Map<String, dynamic> data, {String? tablePrefix}) {
     return WaterPerDay.fromData(data,

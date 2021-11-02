@@ -7,22 +7,27 @@ abstract class WaterDB {
   Future<WaterConfig?> getConfig(int userId);
   Future<WaterConfig> saveConfig(WaterConfig config);
 
-  Future<int> getTotal(int userId, DateTime day);
+  Future<WaterDayTotal> getTotal(int userId, Day day);
 
   /// start: inclusive
   /// end: inclusive
-  Future<Map<DateTime, int>> listTotals(int userId, DateTime start, DateTime end);
+  Future<List<WaterDayTotal>> listTotals(int userId, Day start, Day end);
 
-  Future<List<WaterConsumption>> listDetails(int userId, DateTime day);
+  /// start: inclusive
+  /// end: inclusive
+  Future<List<WaterConsumption>> listDetails(
+      int userId, DateTime start, DateTime end);
 
-  Future<WaterConsumption> add(WaterConsumption consumption);
+  Future<WaterConsumption> add(
+      WaterConsumption consumption, WaterDayTotal total);
 
   Future<void> dispose();
 }
 
 class MemoryWaterDB implements WaterDB {
   final _configs = <int, WaterConfig>{};
-  final _entries = <WaterConsumption>[];
+  final _consumptions = <WaterConsumption>[];
+  final _totals = <Day, WaterDayTotal>{};
 
   @override
   Future<WaterConfig?> getConfig(int userId) async {
@@ -36,29 +41,34 @@ class MemoryWaterDB implements WaterDB {
   }
 
   @override
-  Future<WaterConsumption> add(WaterConsumption consumption) async {
-    _entries.add(consumption);
+  Future<WaterConsumption> add(
+      WaterConsumption consumption, WaterDayTotal total) async {
+    _consumptions.add(consumption);
+    _totals[total.day] = total;
     return consumption;
   }
 
   @override
-  Future<int> getTotal(int userId, DateTime day) async {
-    return _entries
-        .where((e) => e.userId == userId && e.date.isSameDay(day))
-        .fold<int>(0, (v, e) => v + e.quantity);
+  Future<WaterDayTotal> getTotal(int userId, Day day) async {
+    return _totals[day] ?? WaterDayTotal(userId: userId, day: day, total: 0);
   }
 
   @override
-  Future<List<WaterConsumption>> listDetails(int userId, DateTime day) async {
-    return _entries.where((e) => e.userId == userId && e.date.isSameDay(day)).toList();
+  Future<List<WaterConsumption>> listDetails(
+      int userId, DateTime start, DateTime end) async {
+    return _consumptions
+        .where((e) =>
+            e.userId == userId &&
+            e.date.isSameOrAfter(start) &&
+            e.date.isSameOrBefore(end))
+        .toList();
   }
 
   @override
-  Future<Map<DateTime, int>> listTotals(int userId, DateTime start, DateTime end) async {
-    return _entries
-        .where((e) => e.userId == userId && e.date >= start && e.date <= end)
-        .groupBy((e) => e.date.startOfDay)
-        .toHashMap((e) => MapEntry(e.key, e.elements.sum((i) => i.quantity)));
+  Future<List<WaterDayTotal>> listTotals(int userId, Day start, Day end) async {
+    return _totals.values
+        .where((e) => e.userId == userId && e.day >= start && e.day <= end)
+        .toList();
   }
 
   @override

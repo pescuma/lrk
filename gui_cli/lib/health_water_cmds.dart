@@ -76,11 +76,8 @@ class HealthWaterHistoryCommand extends Command {
     var clock = di.get<Clock>();
     var app = di.get<WaterApp>();
 
-    var today = clock.now().startOfDay;
-    var yesterday = today.addDays(-1, true);
-
-    var end = today;
-    var start = end.addDays(-14, true);
+    var end = Day.fromDateTime(clock.now());
+    var start = end.addDays(-14);
 
     var totals = await app.listTotals(start, end);
     totals.sort((a, b) => b.day.timestamp - a.day.timestamp);
@@ -92,16 +89,8 @@ class HealthWaterHistoryCommand extends Command {
     table.add(['Date', 'Total']);
 
     for (var total in totals) {
-      String day;
-      if (total.day == today) {
-        day = 'Today';
-      } else if (total.day == yesterday) {
-        day = 'Yesterday';
-      } else {
-        day = dfmt.format(total.day);
-      }
-
-      table.add([day, '${ifmt.format(total.total)} ml']);
+      table.add(
+          [dfmt.format(total.day.start), '${ifmt.format(total.total)} ml']);
     }
 
     print('Water consumption history');
