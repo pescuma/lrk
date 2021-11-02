@@ -185,4 +185,29 @@ void main() {
 
     expect(changes, equals(0));
   }));
+
+  test('Expected during day', prepare((app, users, time) {
+    time.await(
+        users.setCurrentUserConfig(UserConfig(wakeUpHour: 10, sleepHour: 15)));
+
+    expect(time.await(app.getExpected()), equals(0));
+
+    time.elapse(Duration(hours: 10));
+    expect(time.await(app.getExpected()), equals(0));
+
+    time.elapse(Duration(hours: 1));
+    expect(time.await(app.getExpected()), equals(500));
+
+    time.elapse(Duration(hours: 1));
+    expect(time.await(app.getExpected()), equals(1000));
+
+    time.elapse(Duration(hours: 1));
+    expect(time.await(app.getExpected()), equals(1500));
+
+    time.elapse(Duration(hours: 1));
+    expect(time.await(app.getExpected()), equals(2000));
+
+    time.elapse(Duration(hours: 1));
+    expect(time.await(app.getExpected()), equals(2000));
+  }));
 }

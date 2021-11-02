@@ -86,6 +86,24 @@ class WaterApp extends BaseApp {
     return _cacheTotal!;
   }
 
+  Future<int> getExpected() async {
+    var config = await getConfig();
+    var now = _clock.now();
+    var day = await _getDayConfig();
+    var lastGlass = day.sleep.addHours(-1);
+
+    int totalMins = lastGlass.differenceInMinutes(day.wakeUp);
+    int elapsedMins = now.differenceInMinutes(day.wakeUp);
+
+    if (elapsedMins <= 0) {
+      return 0;
+    } else if (elapsedMins >= totalMins) {
+      return config.targetConsumption;
+    } else {
+      return (config.targetConsumption * elapsedMins / totalMins).floor();
+    }
+  }
+
   Future<int> getTarget() async {
     var config = await getConfig();
     return config.targetConsumption;

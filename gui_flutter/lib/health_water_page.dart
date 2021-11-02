@@ -42,6 +42,7 @@ class _HealthWaterPageState extends State<HealthWaterPage>
   void _fetchData() {
     sync.execute(() async {
       total = await app.getTotal();
+      expected = await app.getExpected();
       target = await app.getTarget();
       glasses = await app.getGlasses();
     });
@@ -82,7 +83,7 @@ class _HealthWaterPageState extends State<HealthWaterPage>
             expected: expected,
             target: target,
             padding:
-                const EdgeInsets.only(top: 12, bottom: 12, left: 12, right: 12),
+                const EdgeInsets.only(top: 10, bottom: 6, left: 20, right: 20),
           ),
           Expanded(
             child: Card(
@@ -92,7 +93,7 @@ class _HealthWaterPageState extends State<HealthWaterPage>
                   child: Wrap(
                     alignment: WrapAlignment.spaceEvenly,
                     spacing: 20,
-                    runSpacing: 4,
+                    runSpacing: 8,
                     clipBehavior: Clip.hardEdge,
                     children: glasses
                         .map((w) => _createGlassItem(
@@ -156,7 +157,9 @@ class _HealthWaterPageState extends State<HealthWaterPage>
         child: Column(
           children: [
             Icon(glassIcons[water.glass]!),
+            const SizedBox(height: 1),
             Text(ifmt.format(water.quantity) + ' ml'),
+            const SizedBox(height: 1),
             Text(
               dfmt.format(water.date),
               style: TextStyle(
@@ -198,7 +201,7 @@ class WaterProgressBar extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(6)),
             child: LinearProgressIndicator(
               value: (expected ?? 0) / (target ?? 1),
-              color: const Color(0xff576f96),
+              color: const Color(0xff826a51),
               minHeight: 30,
             ),
           ),

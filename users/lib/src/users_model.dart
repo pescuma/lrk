@@ -25,7 +25,7 @@ class UserConfig {
   UserConfig(
       {this.userId = -1,
       this.dayChangeHour = 0,
-      this.sleepHour = 11,
+      this.sleepHour = 23,
       this.wakeUpHour = 7});
 
   UserConfig withUserId(int userId) {
@@ -38,12 +38,13 @@ class UserConfig {
 
   DayConfig getDayConfig(Day day) {
     var start = day.toDateTime().addHours(dayChangeHour, true);
+    var end = start.addDays(1, true).addMicroseconds(-1);
+
     var wakeUp = day.toDateTime().addHours(wakeUpHour, true);
     var sleep = day.toDateTime().addHours(sleepHour, true);
-    if (sleepHour >= 0) {
+    if (sleepHour <= wakeUpHour) {
       sleep = sleep.addDays(1, true);
     }
-    var end = start.addDays(1, true).addMicroseconds(-1);
 
     return DayConfig(
         day: day, start: start, wakeUp: wakeUp, sleep: sleep, end: end);
